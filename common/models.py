@@ -2,13 +2,31 @@ from django.db import models
 from uuid import uuid4
 from django_countries.fields import CountryField
 from .constants import *
+from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
 class CommonModel(models.Model):
+    """An abstract model for common information that multiple models can inherit such as UUID, creation time."""
+
     uuid = models.UUIDField(default=uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
+    class Meta:
+        abstract = True
+
+
+class ModelHasName(models.Model):
+    """An abstract model for models, which have the name attribute."""
+
+    name = models.CharField(
+        _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False
+    )
+
+    class Meta:
+        abstract = True
+
+
 class Address(models.Model):
     unit_no = models.CharField(
         max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
@@ -35,6 +53,9 @@ class Address(models.Model):
 
 
 class ModelHasAddress(models.Model):
+    """An abstract model for models, which have the address attribute."""
+
     address = models.ForeignKey(to=Address, on_delete=models.PROTECT)
 
-
+    class Meta:
+        abstract = True
