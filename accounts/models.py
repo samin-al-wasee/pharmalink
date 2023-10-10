@@ -51,21 +51,27 @@ class UserAccount(
     photo = models.ImageField(
         verbose_name=_("user photo"), upload_to=_rename_photo, blank=True, null=True
     )
-    height_cm = models.IntegerField(_("height in centimetres"), blank=True, null=True)
-    weight_kg = models.IntegerField(_("weight in kilograms"), blank=True, null=True)
+    height_cm = models.IntegerField(
+        _("height in centimetres"), blank=False, null=False, default=-1
+    )
+    weight_kg = models.IntegerField(
+        _("weight in kilograms"), blank=False, null=False, default=-1
+    )
     blood_group = models.CharField(
         verbose_name=_("blood group"),
         max_length=MODEL_CHARFIELD_MAX_LENGTH,
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
         choices=BLOOD_GROUPS,
+        default=BLOOD_GROUPS[-1],
     )
     gender = models.CharField(
         verbose_name=_("gender"),
         max_length=MODEL_CHARFIELD_MAX_LENGTH,
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
         choices=GENDERS,
+        default=GENDERS[-1],
     )
     objects: UserAccountManager = UserAccountManager()
     EMAIL_FIELD = "email"

@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from uuid import uuid4
+from uuid import uuid4, UUID
 from django.utils import timezone
 from ..models import UserAccount
 from django.contrib.auth.models import AbstractBaseUser, AbstractUser
@@ -21,3 +21,7 @@ class AccountUserTests(TestCase):
     def test_superuser_create_success(self):
         self.assertIsInstance(self.superuser, self.user_model)
         self.assertTrue(self.superuser.is_superuser)
+        self.assertIsInstance(self.superuser.uuid, UUID)
+        self.assertEquals(self.superuser.name, "")
+        self.assertEquals(self.superuser.blood_group, "")
+        self.assertEquals(self.superuser.gender, "")
