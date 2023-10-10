@@ -6,6 +6,16 @@ from django.contrib.auth.hashers import make_password
 
 
 class UserAccountManager(UserManager):
+    def create_user(
+        self,
+        username: str,
+        email: str | None = ...,
+        password: str | None = ...,
+        **extra_fields: Any
+    ) -> Any:
+        extra_fields.setdefault("is_superuser", False)
+        return self._create_user(username, email, password, **extra_fields)
+
     def create_superuser(
         self, email: str | None, password: str | None, **extra_fields: Any
     ) -> Any:
@@ -16,5 +26,5 @@ class UserAccountManager(UserManager):
             password=make_password(password),
             is_superuser=True,
         )
-        superuser.save()
+        superuser.save(using=self._db)
         return superuser
