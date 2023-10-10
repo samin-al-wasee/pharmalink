@@ -5,6 +5,7 @@ GENDERS = [
     ("M", "Male"),
     ("F", "Female"),
     ("O", "Other"),
+    ("U", "Unknown"),
 ]
 
 BLOOD_GROUPS = [
@@ -16,4 +17,5 @@ BLOOD_GROUPS = [
     ("AB-", "AB Negative"),
     ("O+", "O Positive"),
     ("O-", "O Negative"),
+    ("U", "Unknown"),
 ]
