@@ -3,6 +3,7 @@ from uuid import uuid4
 from django_countries.fields import CountryField
 from .constants import *
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 
 # Create your models here.
@@ -20,7 +21,7 @@ class ModelHasName(models.Model):
     """An abstract model for models, which have the name attribute."""
 
     name = models.CharField(
-        _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False
+        _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
     )
 
     class Meta:
@@ -55,7 +56,9 @@ class Address(models.Model):
 class ModelHasAddress(models.Model):
     """An abstract model for models, which have the address attribute."""
 
-    address = models.ForeignKey(to=Address, on_delete=models.PROTECT)
+    address = models.ForeignKey(
+        to=Address, on_delete=models.PROTECT, blank=True, null=True
+    )
 
     class Meta:
         abstract = True
