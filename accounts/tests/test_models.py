@@ -4,6 +4,7 @@ from uuid import uuid4, UUID
 from django.utils import timezone
 from ..models import UserAccount
 from django.contrib.auth.models import AbstractBaseUser, AbstractUser
+from django.contrib.auth.hashers import make_password
 
 
 class AccountUserTests(TestCase):
@@ -23,5 +24,11 @@ class AccountUserTests(TestCase):
         self.assertTrue(self.superuser.is_superuser)
         self.assertIsInstance(self.superuser.uuid, UUID)
         self.assertEquals(self.superuser.name, "")
-        self.assertEquals(self.superuser.blood_group, "")
-        self.assertEquals(self.superuser.gender, "")
+        self.assertIsNone(self.superuser.address)
+        self.assertEquals(self.superuser.username, "superuser")
+        self.assertEquals(self.superuser.email, "superuser@example.com")
+        self.assertIsNone(self.superuser.date_of_birth) 
+        self.assertEquals(self.superuser.height_cm, -1)
+        self.assertEquals(self.superuser.weight_kg, -1)
+        self.assertEquals(self.superuser.blood_group, "U")
+        self.assertEquals(self.superuser.gender, "U")

@@ -63,7 +63,7 @@ class UserAccount(
         blank=False,
         null=False,
         choices=BLOOD_GROUPS,
-        default=BLOOD_GROUPS[-1],
+        default="U",
     )
     gender = models.CharField(
         verbose_name=_("gender"),
@@ -71,7 +71,7 @@ class UserAccount(
         blank=False,
         null=False,
         choices=GENDERS,
-        default=GENDERS[-1],
+        default="U",
     )
     objects: UserAccountManager = UserAccountManager()
     EMAIL_FIELD = "email"
