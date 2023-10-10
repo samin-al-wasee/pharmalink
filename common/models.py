@@ -40,7 +40,7 @@ class Address(models.Model):
     line_2 = models.CharField(
         max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
     )
-    city = models.Charfield(
+    city = models.CharField(
         max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False
     )
     region = models.CharField(
