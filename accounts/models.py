@@ -35,7 +35,7 @@ class UserAccount(
         verbose_name=_("email address"), unique=True, blank=False, null=False
     )
     date_of_birth = models.DateField(
-        verbose_name=_("date of birth"), blank=False, null=False
+        verbose_name=_("date of birth"), blank=True, null=True
     )
 
     def _rename_photo(instance, filename: str):
@@ -49,16 +49,23 @@ class UserAccount(
         return f"user_photos/{instance.username}.{extension}"
 
     photo = models.ImageField(
-        verbose_name=_("user photo"),
-        upload_to=_rename_photo,
+        verbose_name=_("user photo"), upload_to=_rename_photo, blank=True, null=True
     )
-    height_cm = models.IntegerField(_("height in centimetres"), blank=False, null=False)
-    weight_kg = models.IntegerField(_("weight in kilograms"), blank=False, null=False)
+    height_cm = models.IntegerField(_("height in centimetres"), blank=True, null=True)
+    weight_kg = models.IntegerField(_("weight in kilograms"), blank=True, null=True)
     blood_group = models.CharField(
-        verbose_name=_("blood group"), blank=False, null=False, choices=BLOOD_GROUPS
+        verbose_name=_("blood group"),
+        max_length=MODEL_CHARFIELD_MAX_LENGTH,
+        blank=True,
+        null=True,
+        choices=BLOOD_GROUPS,
     )
     gender = models.CharField(
-        verbose_name=_("gender"), blank=False, null=False, choices=GENDERS
+        verbose_name=_("gender"),
+        max_length=MODEL_CHARFIELD_MAX_LENGTH,
+        blank=True,
+        null=True,
+        choices=GENDERS,
     )
     objects: UserAccountManager = UserAccountManager()
     EMAIL_FIELD = "email"
