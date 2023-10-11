@@ -13,6 +13,7 @@ class UserAccountManager(UserManager):
         password: str | None = ...,
         **extra_fields: Any
     ) -> Any:
+        print("Hello, I am create_user()!")
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(username, email, password, **extra_fields)
 
@@ -28,3 +29,6 @@ class UserAccountManager(UserManager):
         )
         superuser.save(using=self._db)
         return superuser
+
+    def create(self, **kwargs: Any) -> Any:
+        return super().create(**kwargs)

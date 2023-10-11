@@ -32,7 +32,14 @@ class UserAccount(
         },
     )
     email = models.EmailField(
-        verbose_name=_("email address"), unique=True, blank=False, null=False
+        verbose_name=_("email address"),
+        unique=True,
+        blank=False,
+        null=False,
+        help_text=_("Required. 128 characters or fewer."),
+        error_messages={
+            "unique": _("A user with that email already exists."),
+        },
     )
     date_of_birth = models.DateField(
         verbose_name=_("date of birth"), blank=True, null=True
@@ -81,6 +88,13 @@ class UserAccount(
     class Meta:
         verbose_name = _("user account")
         verbose_name_plural = _("user accounts")
+
+    @property
+    def is_staff(self):
+        return self.is_superuser
+
+    def __str__(self) -> str:
+        return f"{self.username} | {self.email}"
 
     def clean(self) -> None:
         super().clean()

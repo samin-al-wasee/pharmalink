@@ -13,9 +13,9 @@ class AccountUserTests(TestCase):
         self.superuser: UserAccount = self.user_model.objects.create_superuser(
             username=None, email="superuser@example.com", password="superuser_pass"
         )
-        self.user: UserAccount = self.user_model.objects.create_user(
+        self.user: UserAccount = self.user_model.objects.create(
             username="test_user",
-            email=None,
+            email="test_user@example.com",
             password="test_user_pass",
         )
 
@@ -38,5 +38,9 @@ class AccountUserTests(TestCase):
         self.assertEquals(self.superuser.blood_group, "U")
         self.assertEquals(self.superuser.gender, "U")
 
-    def test_user_create_success(self):
+    def test_create_user_success(self):
         self.assertIsInstance(self.user, self.user_model)
+        self.assertEquals(self.user.password, "test_user_pass")
+
+    def test_create_success(self):
+        pass
