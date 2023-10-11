@@ -45,7 +45,7 @@ class Address(models.Model):
         max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False
     )
     region = models.CharField(
-        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False
+        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
     )
     postal_code = models.CharField(
         max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False
