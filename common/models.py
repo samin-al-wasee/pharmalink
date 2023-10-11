@@ -28,7 +28,7 @@ class ModelHasName(models.Model):
         abstract = True
 
 
-class Address(models.Model):
+class Address(models.Model): 
     unit_no = models.CharField(
         max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
     )
