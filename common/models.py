@@ -52,6 +52,19 @@ class Address(models.Model):
     )
     country = CountryField(blank=False, null=False)
 
+    class Meta:
+        ordering = ["country"]
+        unique_together = [
+            "unit_no",
+            "street_no",
+            "line_1",
+            "line_2",
+            "city",
+            "region",
+            "postal_code",
+            "country",
+        ]
+
 
 class ModelHasAddress(models.Model):
     """An abstract model for models, which have the address attribute."""
