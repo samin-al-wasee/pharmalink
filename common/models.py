@@ -1,9 +1,10 @@
 from django.db import models
 from uuid import uuid4
-from django_countries.fields import CountryField
+from django_countries.fields import CountryField, Country
 from .constants import *
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 
 # Create your models here.
@@ -50,7 +51,9 @@ class Address(models.Model):
     postal_code = models.CharField(
         max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False, default=None
     )
-    country = CountryField(blank=False, null=False, default=None)
+    country: Country = CountryField(
+        blank_label=_("Select country"), blank=True, null=False, default=None
+    )
 
     class Meta:
         verbose_name = _("address")
@@ -66,6 +69,11 @@ class Address(models.Model):
             "postal_code",
             "country",
         ]
+
+    def clean(self) -> None:
+        super().clean()
+        if self.country.code == "":
+            raise ValidationError({"country": "Country can not be blank."})
 
 
 class ModelHasAddress(models.Model):
