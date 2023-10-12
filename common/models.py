@@ -28,7 +28,7 @@ class ModelHasName(models.Model):
         abstract = True
 
 
-class Address(models.Model): 
+class Address(models.Model):
     unit_no = models.CharField(
         max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
     )
@@ -42,17 +42,19 @@ class Address(models.Model):
         max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
     )
     city = models.CharField(
-        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False
+        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False, default=None
     )
     region = models.CharField(
         max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
     )
     postal_code = models.CharField(
-        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False
+        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False, default=None
     )
-    country = CountryField(blank=False, null=False)
+    country = CountryField(blank=False, null=False, default=None)
 
     class Meta:
+        verbose_name = _("address")
+        verbose_name_plural = _("addresses")
         ordering = ["country"]
         unique_together = [
             "unit_no",
