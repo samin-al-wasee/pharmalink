@@ -22,7 +22,7 @@ class ModelHasName(models.Model):
     """An abstract model for models, which have the name attribute."""
 
     name = models.CharField(
-        _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
+        _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True
     )
 
     class Meta:
@@ -30,30 +30,14 @@ class ModelHasName(models.Model):
 
 
 class Address(models.Model):
-    unit_no = models.CharField(
-        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
-    )
-    street_no = models.CharField(
-        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
-    )
-    line_1 = models.CharField(
-        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
-    )
-    line_2 = models.CharField(
-        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
-    )
-    city = models.CharField(
-        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False, default=None
-    )
-    region = models.CharField(
-        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True, null=False
-    )
-    postal_code = models.CharField(
-        max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=False, null=False, default=None
-    )
-    country: Country = CountryField(
-        blank_label=_("Select country"), blank=True, null=False, default=None
-    )
+    unit_no = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
+    street_no = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
+    line_1 = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
+    line_2 = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
+    city = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH)
+    region = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
+    postal_code = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH)
+    country: Country = CountryField(blank_label=_("Select country"))
 
     class Meta:
         verbose_name = _("address")
