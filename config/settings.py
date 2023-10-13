@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django_countries",
     "accounts.apps.AccountsConfig",
     "common.apps.CommonConfig",
+    "organizations.apps.OrganizationsConfig",
 ]
 
 MIDDLEWARE = [

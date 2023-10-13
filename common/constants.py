@@ -1,5 +1,12 @@
+"""
+Generic model-related constants
+"""
 MODEL_CHARFIELD_MIN_LENGTH = 8
 MODEL_CHARFIELD_MAX_LENGTH = 128
+
+"""
+Constants and choices for the UserAccount model
+"""
 MALE = "M"
 FEMALE = "F"
 OTHER = "O"
@@ -30,4 +37,17 @@ BLOOD_GROUPS = [
     (O_POSITIVE, "O Positive"),
     (O_NEGATIVE, "O Negative"),
     (UNKNOWN, "Unknown"),
+]
+
+"""
+Constants and choices for Organization model
+"""
+ORGANIZATION_IS_ACTIVE = "A"
+ORGANIZATION_IS_INACTIVE = "I"
+ORGANIZATION_STATUS_UNKNOWN = "U"
+
+ORGANIZATION_STATUS = [
+    (ORGANIZATION_IS_ACTIVE, "This organization is currently active."),
+    (ORGANIZATION_IS_INACTIVE, "This organization is currently inactive."),
+    (ORGANIZATION_STATUS_UNKNOWN, "No information about this organization's status."),
 ]
