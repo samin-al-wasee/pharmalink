@@ -30,6 +30,12 @@ class ModelHasName(models.Model):
 
 
 class Address(models.Model):
+    """
+    Address model is used to create all the addresses in the system.
+    Only city, postal code and country is required.
+    Each address, as a whole including all the fields, should be unique.
+    """
+
     unit_no = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
     street_no = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
     line_1 = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
@@ -55,13 +61,22 @@ class Address(models.Model):
         ]
 
     def clean(self) -> None:
+        """
+        This method will add an extra step for the validation of the country field.
+        Value of the country code remains blank ("") if no country is selected.
+        Raise a validation error manually to ensure that a country is selected
+        """
         super().clean()
         if self.country.code == "":
             raise ValidationError({"country": "Country can not be blank."})
 
 
 class ModelHasAddress(models.Model):
-    """An abstract model for models, which have the address attribute."""
+    """
+    An abstract model for models, which have the address attribute.
+    Address can be empty or none.
+    If an address is referenced in any model objects, the address can not be deleted.
+    """
 
     address = models.ForeignKey(
         to=Address, on_delete=models.PROTECT, blank=True, null=True
