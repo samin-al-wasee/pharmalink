@@ -39,12 +39,37 @@ class UserAccountAdmin(UserAdmin):
     )
     add_fieldsets = (
         (
-            "Credentials",
+            _("Credentials"),
             {
                 "classes": ("wide",),
                 "fields": ("username", "email", "password1", "password2"),
             },
         ),
+        (
+            _("Personal info"),
+            {
+                "fields": (
+                    "name",
+                    "photo",
+                    "height_cm",
+                    "weight_kg",
+                    "blood_group",
+                    "gender",
+                    "address",
+                )
+            },
+        ),
+        (
+            _("Permissions"),
+            {
+                "fields": (
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                ),
+            },
+        ),
+        (_("Important dates"), {"fields": ("date_of_birth",)}),
     )
-    list_display = ("username", "email", "is_superuser", "created_at")
+    list_display = ("uuid", "username", "email", "is_superuser", "created_at")
     list_filter = ("is_superuser", "blood_group", "gender", "groups")

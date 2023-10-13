@@ -13,7 +13,7 @@ class AccountUserTests(TestCase):
         self.superuser: UserAccount = self.user_model.objects.create_superuser(
             username=None, email="superuser@example.com", password="superuser_pass"
         )
-        self.user: UserAccount = self.user_model.objects.create(
+        self.user: UserAccount = self.user_model.objects.create_user(
             username="test_user",
             email="test_user@example.com",
             password="test_user_pass",
@@ -40,7 +40,11 @@ class AccountUserTests(TestCase):
 
     def test_create_user_success(self):
         self.assertIsInstance(self.user, self.user_model)
-        self.assertEquals(self.user.password, "test_user_pass")
+        # self.assertEquals(self.user.password, "test_user_pass")
 
     def test_create_success(self):
-        pass
+        self.assertEquals(self.user.blood_group, "U")
+        self.assertEquals(self.user.gender, "U")
+        self.assertEquals(self.user.height_cm, -1)
+        self.assertEquals(self.user.weight_kg, -1)
+        self.assertEquals(self.user.photo, None)

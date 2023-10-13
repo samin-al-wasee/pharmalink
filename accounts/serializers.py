@@ -1,20 +1,19 @@
-from django.contrib.auth.validators import ASCIIUsernameValidator
 from rest_framework.serializers import (
     CharField,
-    ChoiceField,
-    DateField,
-    EmailField,
-    ImageField,
-    IntegerField,
     ModelSerializer,
-    PrimaryKeyRelatedField,
-    Serializer,
 )
-from rest_framework.validators import UniqueValidator, ValidationError
+from rest_framework.validators import ValidationError
 
 from common.constants import *
 from common.models import Address
 from .models import UserAccount
+
+
+class AddressCreateSerializer(ModelSerializer):
+    class Meta:
+        model = Address
+        fields = "__all__"
+        read_only_fields = ("id",)
 
 
 class UserAccountCreateSerializer(ModelSerializer):
@@ -39,6 +38,7 @@ class UserAccountCreateSerializer(ModelSerializer):
             "is_superuser",
         )
         read_only_fields = ("last_login", "is_superuser")
+        extra_kwargs = {"password": {"write_only": True}}
 
     repeated_password = CharField(
         min_length=MODEL_CHARFIELD_MIN_LENGTH,
@@ -48,22 +48,39 @@ class UserAccountCreateSerializer(ModelSerializer):
         required=True,
         write_only=True,
     )
-    address = PrimaryKeyRelatedField(
-        queryset=Address.objects.all(), allow_null=True, required=False, default=None
-    )
+    address = AddressCreateSerializer(allow_null=True, required=False)
 
-    # Following two methods need fixing. Validation logics related to two or more fields should be in the validate() method.
+    def validate(self, attrs):
+        password = attrs.get("password")
+        repeated_password = attrs.get("repeated_password")
 
-    def validate_password(self, value):
-        if value != self.initial_data["repeated_password"]:
-            raise ValidationError("Passwords do not match.")
-        return value
+        if password != repeated_password:
+            raise ValidationError(
+                {
+                    "password": "Passwords do not match.",
+                    "repeated_password": "Passwords do not match.",
+                }
+            )
 
-    def validate_repeated_password(self, value):
-        if value != self.initial_data["password"]:
-            raise ValidationError("Passwords do not match.")
-        return value
+        return attrs
+
+    def create(self, validated_data):
+        """
+        Following steps are performed before calling the actual "create()" method to deserialize given data:
+
+        - Repeated password field is removed
+        - Checks if any data present for the address field
+        - If present raise appropriate validation errors
+        - Otherwise create a new address object and save
+        - Finally proceed to create the actual user object
+        """
+        validated_data.pop("repeated_password")
+        user_address: dict = validated_data.pop("address", None)
+        if user_address is not None:
+            address_serializer = AddressCreateSerializer(data=user_address)
+            address_serializer.is_valid(raise_exception=True)
+            validated_data["address"] = address_serializer.save()
+        return super().create(validated_data)
 
     def save(self, **kwargs):
-        self.validated_data.pop("repeated_password")
         return super().save(**kwargs)

@@ -18,8 +18,6 @@ class UserAccount(
         verbose_name=_("username"),
         max_length=MODEL_CHARFIELD_MAX_LENGTH,
         unique=True,
-        blank=False,
-        null=False,
         help_text=_(
             "Required. 128 characters or fewer. Letters, digits and @/./+/-/_ only."
         ),
@@ -34,8 +32,6 @@ class UserAccount(
     email = models.EmailField(
         verbose_name=_("email address"),
         unique=True,
-        blank=False,
-        null=False,
         help_text=_("Required. 128 characters or fewer."),
         error_messages={
             "unique": _("A user with that email already exists."),
@@ -58,27 +54,19 @@ class UserAccount(
     photo = models.ImageField(
         verbose_name=_("user photo"), upload_to=_rename_photo, blank=True, null=True
     )
-    height_cm = models.IntegerField(
-        _("height in centimetres"), blank=False, null=False, default=-1
-    )
-    weight_kg = models.IntegerField(
-        _("weight in kilograms"), blank=False, null=False, default=-1
-    )
+    height_cm = models.IntegerField(_("height in centimetres"), default=-1)
+    weight_kg = models.IntegerField(_("weight in kilograms"), default=-1)
     blood_group = models.CharField(
         verbose_name=_("blood group"),
         max_length=MODEL_CHARFIELD_MAX_LENGTH,
-        blank=False,
-        null=False,
         choices=BLOOD_GROUPS,
-        default="U",
+        default=UNKNOWN,
     )
     gender = models.CharField(
         verbose_name=_("gender"),
         max_length=MODEL_CHARFIELD_MAX_LENGTH,
-        blank=False,
-        null=False,
         choices=GENDERS,
-        default="U",
+        default=UNKNOWN,
     )
     objects: UserAccountManager = UserAccountManager()
     EMAIL_FIELD = "email"
@@ -104,6 +92,8 @@ class UserAccount(
         return self.name
 
     def email_user(self) -> Any:
-        """Could be implemented later for user verification purpose."""
+        """
+        Could be implemented later for user verification purpose.
+        """
 
         pass
