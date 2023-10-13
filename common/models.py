@@ -18,11 +18,16 @@ class CommonModel(models.Model):
         abstract = True
 
 
-class ModelHasName(models.Model):
-    """An abstract model for models, which have the name attribute."""
+class ModelHasEmail(models.Model):
+    """An abstract model for models, which have the email attribute."""
 
-    name = models.CharField(
-        _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True
+    email = models.EmailField(
+        verbose_name=_("email address"),
+        unique=True,
+        help_text=_("Required. 128 characters or fewer."),
+        error_messages={
+            "unique": _("This email already exists."),
+        },
     )
 
     class Meta:

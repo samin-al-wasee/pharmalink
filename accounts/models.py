@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 class UserAccount(
-    AbstractBaseUser, PermissionsMixin, CommonModel, ModelHasName, ModelHasAddress
+    AbstractBaseUser, PermissionsMixin, CommonModel, ModelHasEmail, ModelHasAddress
 ):
     username = models.CharField(
         verbose_name=_("username"),
@@ -29,13 +29,8 @@ class UserAccount(
             "unique": _("A user with that username already exists."),
         },
     )
-    email = models.EmailField(
-        verbose_name=_("email address"),
-        unique=True,
-        help_text=_("Required. 128 characters or fewer."),
-        error_messages={
-            "unique": _("A user with that email already exists."),
-        },
+    name = models.CharField(
+        _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True
     )
     date_of_birth = models.DateField(
         verbose_name=_("date of birth"), blank=True, null=True

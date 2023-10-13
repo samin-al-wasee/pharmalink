@@ -1,5 +1,5 @@
 from django.db import models
-from common.models import CommonModel, ModelHasName, ModelHasAddress
+from common.models import CommonModel, ModelHasEmail, ModelHasAddress
 from django.utils.translation import gettext_lazy as _
 from common.constants import (
     MODEL_CHARFIELD_MAX_LENGTH,
@@ -9,27 +9,23 @@ from common.constants import (
     ORGANIZATION_STATUS_UNKNOWN,
     ORGANIZATION_STATUS,
 )
+from accounts.models import UserAccount
 
 
 # Create your models here.
-class Organization(CommonModel, ModelHasName, ModelHasAddress):
+class Organization(CommonModel, ModelHasEmail, ModelHasAddress):
+    name = models.CharField(_("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH)
     information = models.TextField(
         verbose_name=_("organization information"), default="No information available."
     )
-    email = models.EmailField(
-        verbose_name=_("email address"),
-        unique=True,
-        help_text=_("Required. 128 characters or fewer."),
-        error_messages={
-            "unique": _("A user with that email already exists."),
-        },
-    )
+
     status = models.CharField(
         verbose_name=_("organization status"),
         max_length=MODEL_CHARFIELD_MAX_LENGTH,
         choices=ORGANIZATION_STATUS,
         default=ORGANIZATION_STATUS_UNKNOWN,
     )
+    owner_user_account = models.ForeignKey(to=UserAccount, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = _("organization")
