@@ -1,11 +1,17 @@
 from typing import Any
 from django.db import models
-from django.contrib.auth.models import PermissionsMixin, AbstractUser
+from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.validators import ASCIIUsernameValidator
 from django.core.validators import MinLengthValidator
-from common.constants import *
-from common.models import *
+from common.constants import (
+    MODEL_CHARFIELD_MAX_LENGTH,
+    MODEL_CHARFIELD_MIN_LENGTH,
+    BLOOD_GROUPS,
+    GENDERS,
+    UNKNOWN,
+)
+from common.models import CommonModel, ModelHasEmail, ModelHasAddress
 from .managers import UserAccountManager
 from django.utils.translation import gettext_lazy as _
 

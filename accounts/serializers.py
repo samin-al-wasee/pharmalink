@@ -4,16 +4,9 @@ from rest_framework.serializers import (
 )
 from rest_framework.validators import ValidationError
 
-from common.constants import *
-from common.models import Address
+from common.constants import MODEL_CHARFIELD_MAX_LENGTH, MODEL_CHARFIELD_MIN_LENGTH
+from common.serializers import AddressSerializer
 from .models import UserAccount
-
-
-class AddressCreateSerializer(ModelSerializer):
-    class Meta:
-        model = Address
-        fields = "__all__"
-        read_only_fields = ("id",)
 
 
 class UserAccountCreateSerializer(ModelSerializer):
@@ -48,7 +41,7 @@ class UserAccountCreateSerializer(ModelSerializer):
         required=True,
         write_only=True,
     )
-    address = AddressCreateSerializer(allow_null=True, required=False)
+    address = AddressSerializer(allow_null=True, required=False)
 
     def validate(self, attrs):
         password = attrs.get("password")
@@ -77,7 +70,7 @@ class UserAccountCreateSerializer(ModelSerializer):
         validated_data.pop("repeated_password")
         user_address: dict = validated_data.pop("address", None)
         if user_address is not None:
-            address_serializer = AddressCreateSerializer(data=user_address)
+            address_serializer = AddressSerializer(data=user_address)
             address_serializer.is_valid(raise_exception=True)
             validated_data["address"] = address_serializer.save()
         return super().create(validated_data)
