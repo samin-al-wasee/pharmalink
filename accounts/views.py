@@ -1,10 +1,13 @@
 from django.http import Http404
 from django.utils import timezone
 from rest_framework.exceptions import AuthenticationFailed, NotFound, PermissionDenied
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.shortcuts import get_object_or_404
 
 from .models import UserAccount
 from .permissions import IsNotAuthenticated
@@ -15,6 +18,7 @@ from .serializers import UserAccountCreateSerializer
 class UserAccountCreateView(CreateAPIView):
     queryset = UserAccount.objects.all()
     serializer_class = UserAccountCreateSerializer
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
     permission_classes = [IsNotAuthenticated]
 
     def get_view_name(self):
@@ -30,3 +34,20 @@ class UserAccountCreateView(CreateAPIView):
                 "You have already signed up and are currently logged in."
             )
         super().permission_denied(request, message, code)
+
+
+class UserAccountAuthDetailView(RetrieveAPIView):
+    queryset = None
+    serializer_class = UserAccountCreateSerializer
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_view_name(self):
+        return "User Account Authenticated Details"
+
+    def retrieve(self, request, *args, **kwargs):
+        authenticated_user_account: UserAccount = request.user
+        serializer: UserAccountCreateSerializer = self.get_serializer(
+            authenticated_user_account
+        )
+        return Response(serializer.data)
