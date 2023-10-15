@@ -1,11 +1,14 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from .models import Organization
+from rest_framework.generics import (ListCreateAPIView,
+                                     RetrieveUpdateDestroyAPIView)
+from rest_framework.parsers import FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAuthenticatedOwner
-from .serializers import OrganizationSerializer
+
 from accounts.models import UserAccount
 from common.constants import ORGANIZATION_IS_ACTIVE
-from rest_framework.parsers import JSONParser, FormParser
+
+from .models import Organization
+from .permissions import IsAuthenticatedOwner
+from .serializers import OrganizationSerializer
 
 
 # Create your views here.

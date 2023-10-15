@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import OrganizationListCreateView, OrganizationDetailsUpdateView
+
+from .views import OrganizationDetailsUpdateView, OrganizationListCreateView
 
 urlpatterns = [
     path(

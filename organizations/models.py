@@ -1,15 +1,12 @@
 from django.db import models
-from common.models import CommonModel, ModelHasEmail, ModelHasAddress
 from django.utils.translation import gettext_lazy as _
-from common.constants import (
-    MODEL_CHARFIELD_MAX_LENGTH,
-    MODEL_CHARFIELD_MIN_LENGTH,
-    ORGANIZATION_IS_ACTIVE,
-    ORGANIZATION_IS_INACTIVE,
-    ORGANIZATION_STATUS_UNKNOWN,
-    ORGANIZATION_STATUS,
-)
+
 from accounts.models import UserAccount
+from common.constants import (MODEL_CHARFIELD_MAX_LENGTH,
+                              MODEL_CHARFIELD_MIN_LENGTH,
+                              ORGANIZATION_IS_ACTIVE, ORGANIZATION_IS_INACTIVE,
+                              ORGANIZATION_STATUS, ORGANIZATION_STATUS_UNKNOWN)
+from common.models import CommonModel, ModelHasAddress, ModelHasEmail
 
 
 # Create your models here.

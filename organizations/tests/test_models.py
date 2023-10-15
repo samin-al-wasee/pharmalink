@@ -1,6 +1,7 @@
-from django.test import TestCase
-from ..models import Organization
 from django.forms.models import model_to_dict
+from django.test import TestCase
+
+from ..models import Organization
 
 
 class OrganizationTests(TestCase):
