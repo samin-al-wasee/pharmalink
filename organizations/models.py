@@ -27,3 +27,6 @@ class Organization(CommonModel, ModelHasEmail, ModelHasAddress):
     class Meta:
         verbose_name = _("organization")
         verbose_name_plural = _("organizations")
+
+    def __str__(self) -> str:
+        return f"{self.name}"
