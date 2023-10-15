@@ -50,4 +50,4 @@ class OrganizationHasUserWithRole(models.Model):
         verbose_name_plural = _("organizations have users with roles")
 
     def __str__(self) -> str:
-        return f"{str(self.user_account)}({self.role} @ {self.organization.name})"
+        return f"{str(self.user_account)}({self.role}) @ {self.organization.name}"
