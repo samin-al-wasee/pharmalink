@@ -1,8 +1,10 @@
 from typing import Any
+
 from django.contrib.auth import get_user_model
-from common.models import Address
-from django.contrib.auth.models import UserManager
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import UserManager
+
+from common.models import Address
 
 
 class UserAccountManager(UserManager):

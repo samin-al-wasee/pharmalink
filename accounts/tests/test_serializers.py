@@ -1,5 +1,6 @@
 from django.test import TestCase
-from ..serializers import UserAccountCreateSerializer, AddressCreateSerializer
+
+from ..serializers import AddressCreateSerializer, UserAccountCreateSerializer
 
 
 class UserAccountCreateSerializerTests(TestCase):

@@ -1,6 +1,8 @@
-from django.urls import path, include
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import UserAccountCreateView, UserAccountAuthDetailView
+from django.urls import include, path
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
+
+from .views import UserAccountAuthDetailView, UserAccountCreateView
 
 urlpatterns = [
     path("", include("rest_framework.urls")),
