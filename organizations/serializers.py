@@ -4,7 +4,7 @@ from accounts.serializers import UserAccountSerializer
 from common.serializers import AddressSerializer
 from common.utils import get_nested_object_deserialized, remove_blank_or_null
 
-from .models import Organization
+from .models import Organization, OrganizationHasUserWithRole
 
 
 class OrganizationSerializer(ModelSerializer):
@@ -25,7 +25,7 @@ class OrganizationSerializer(ModelSerializer):
     address = AddressSerializer(allow_null=True, required=False)
     owner_user_account = UserAccountSerializer(read_only=True)
 
-    def is_valid(self, *, raise_exception=False):
+    def is_valid(self, *, raise_exception=False):  # Needs REFACTOR
         self.initial_data = remove_blank_or_null(self.initial_data)
         return super().is_valid(raise_exception=raise_exception)
 
@@ -48,3 +48,14 @@ class OrganizationSerializer(ModelSerializer):
 
     def save(self, **kwargs):
         return super().save(**kwargs)
+
+
+class OrganizationUserSerializer(ModelSerializer):
+    class Meta:
+        model = OrganizationHasUserWithRole
+        fields = "__all__"
+        read_only = ("organization",)
+
+    def is_valid(self, *, raise_exception=False):
+        self.initial_data = remove_blank_or_null(self.initial_data)
+        return super().is_valid(raise_exception=raise_exception)

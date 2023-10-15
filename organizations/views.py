@@ -1,13 +1,16 @@
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.parsers import FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 
 from accounts.models import UserAccount
 from common.constants import ORGANIZATION_IS_ACTIVE
 
-from .models import Organization
+from .models import Organization, OrganizationHasUserWithRole
 from .permissions import IsAuthenticatedOwner
-from .serializers import OrganizationSerializer
+from .serializers import OrganizationSerializer, OrganizationUserSerializer
 
 
 # Create your views here.
@@ -50,3 +53,25 @@ class OrganizationDetailsUpdateView(RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance: Organization):
         instance.status = "I"
         instance.save()
+
+
+class OrganizationUserListCreateView(ListCreateAPIView):
+    serializer_class = OrganizationUserSerializer
+    permission_classes = [IsAuthenticatedOwner]
+
+    def check_permissions(self, request: Request):
+        organization_uuid = request.parser_context["kwargs"]["uuid"]
+        try:
+            organization = get_object_or_404(klass=Organization, uuid=organization_uuid)
+        except Http404:
+            raise NotFound
+
+        if organization.owner_user_account.id != request.user.id:
+            raise PermissionDenied(
+                "Only the organization owner can see the organization's users' list"
+            )
+
+        self.queryset = OrganizationHasUserWithRole.objects.filter(
+            organization__uuid=organization.uuid
+        )
+        return super().check_permissions(request)
