@@ -2,9 +2,10 @@
 This module includs some utility functions used for various purposes in other apps, modules, classes or functions.
 """
 
-from rest_framework.serializers import ModelSerializer
 from typing import Any
+
 from django.http import QueryDict
+from rest_framework.serializers import ModelSerializer
 
 
 def remove_blank_or_null(data: QueryDict | dict) -> QueryDict | dict:

@@ -1,6 +1,7 @@
-from django.test import TestCase
-from ..models import Address
 from django.db.utils import IntegrityError
+from django.test import TestCase
+
+from ..models import Address
 
 
 class AddressTests(TestCase):

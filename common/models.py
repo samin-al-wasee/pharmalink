@@ -1,10 +1,12 @@
-from django.db import models
 from uuid import uuid4
-from django_countries.fields import CountryField, Country
-from .constants import *
-from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
+
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from django_countries.fields import Country, CountryField
+
+from .constants import *
 
 
 # Create your models here.
