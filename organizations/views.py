@@ -5,6 +5,7 @@ from .permissions import IsAuthenticatedOwner
 from .serializers import OrganizationSerializer
 from accounts.models import UserAccount
 from common.constants import ORGANIZATION_IS_ACTIVE
+from rest_framework.parsers import JSONParser, FormParser
 
 
 # Create your views here.
@@ -44,6 +45,6 @@ class OrganizationDetailsUpdateView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticatedOwner]
     lookup_field = "uuid"
 
-    def delete(self, request, *args, **kwargs):
-        request.data["status"] = "I"
-        return self.patch(request=request, *args, **kwargs)
+    def perform_destroy(self, instance: Organization):
+        instance.status = "I"
+        instance.save()
