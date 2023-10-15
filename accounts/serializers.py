@@ -62,7 +62,7 @@ class UserAccountSerializer(ModelSerializer):
         self.initial_data = remove_blank_or_null(self.initial_data)
         return super().is_valid(raise_exception=raise_exception)
 
-    def create(self, validated_data):
+    def create(self, validated_data):  # Needs REFACTOR
         """
         Following steps are performed before calling the actual "create()" method to deserialize given data:
 
@@ -76,7 +76,7 @@ class UserAccountSerializer(ModelSerializer):
         user_address: dict = validated_data.pop("address", None)
         if user_address is not None:
             validated_data["address"] = get_nested_object_deserialized(
-                data=user_address
+                data=user_address, serializer_class=AddressSerializer
             )
         return super().create(validated_data)
 
