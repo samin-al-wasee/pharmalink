@@ -11,13 +11,13 @@ from django.shortcuts import get_object_or_404
 
 from .models import UserAccount
 from .permissions import IsNotAuthenticated
-from .serializers import UserAccountCreateSerializer
+from .serializers import UserAccountSerializer
 
 
 # Create your views here.
 class UserAccountCreateView(CreateAPIView):
     queryset = UserAccount.objects.all()
-    serializer_class = UserAccountCreateSerializer
+    serializer_class = UserAccountSerializer
     authentication_classes = [JWTAuthentication, SessionAuthentication]
     permission_classes = [IsNotAuthenticated]
 
@@ -38,7 +38,7 @@ class UserAccountCreateView(CreateAPIView):
 
 class UserAccountAuthDetailView(RetrieveAPIView):
     queryset = None
-    serializer_class = UserAccountCreateSerializer
+    serializer_class = UserAccountSerializer
     authentication_classes = [JWTAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -47,7 +47,7 @@ class UserAccountAuthDetailView(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         authenticated_user_account: UserAccount = request.user
-        serializer: UserAccountCreateSerializer = self.get_serializer(
+        serializer: UserAccountSerializer = self.get_serializer(
             authenticated_user_account
         )
         return Response(serializer.data)

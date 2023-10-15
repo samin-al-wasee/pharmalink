@@ -7,9 +7,10 @@ from rest_framework.validators import ValidationError
 from common.constants import MODEL_CHARFIELD_MAX_LENGTH, MODEL_CHARFIELD_MIN_LENGTH
 from common.serializers import AddressSerializer
 from .models import UserAccount
+from common.utils import remove_blank_or_null, get_nested_object_deserialized
 
 
-class UserAccountCreateSerializer(ModelSerializer):
+class UserAccountSerializer(ModelSerializer):
     class Meta:
         model = UserAccount
         fields = (
@@ -57,6 +58,10 @@ class UserAccountCreateSerializer(ModelSerializer):
 
         return attrs
 
+    def is_valid(self, *, raise_exception=False):
+        self.initial_data = remove_blank_or_null(self.initial_data)
+        return super().is_valid(raise_exception=raise_exception)
+
     def create(self, validated_data):
         """
         Following steps are performed before calling the actual "create()" method to deserialize given data:
@@ -70,9 +75,9 @@ class UserAccountCreateSerializer(ModelSerializer):
         validated_data.pop("repeated_password")
         user_address: dict = validated_data.pop("address", None)
         if user_address is not None:
-            address_serializer = AddressSerializer(data=user_address)
-            address_serializer.is_valid(raise_exception=True)
-            validated_data["address"] = address_serializer.save()
+            validated_data["address"] = get_nested_object_deserialized(
+                data=user_address
+            )
         return super().create(validated_data)
 
     def save(self, **kwargs):
