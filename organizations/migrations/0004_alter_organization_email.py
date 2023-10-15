@@ -4,15 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations', '0003_alter_organization_email_alter_organization_name'),
+        ("organizations", "0003_alter_organization_email_alter_organization_name"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='organization',
-            name='email',
-            field=models.EmailField(error_messages={'blank': 'Email field can not be blank.', 'unique': 'This email already exists.'}, help_text='Required. 128 characters or fewer.', max_length=254, unique=True, verbose_name='email address'),
+            model_name="organization",
+            name="email",
+            field=models.EmailField(
+                error_messages={
+                    "blank": "Email field can not be blank.",
+                    "unique": "This email already exists.",
+                },
+                help_text="Required. 128 characters or fewer.",
+                max_length=254,
+                unique=True,
+                verbose_name="email address",
+            ),
         ),
     ]

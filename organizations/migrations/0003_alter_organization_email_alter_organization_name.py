@@ -4,20 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations', '0002_organization_owner_user_account'),
+        ("organizations", "0002_organization_owner_user_account"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='organization',
-            name='email',
-            field=models.EmailField(error_messages={'unique': 'This email already exists.'}, help_text='Required. 128 characters or fewer.', max_length=254, unique=True, verbose_name='email address'),
+            model_name="organization",
+            name="email",
+            field=models.EmailField(
+                error_messages={"unique": "This email already exists."},
+                help_text="Required. 128 characters or fewer.",
+                max_length=254,
+                unique=True,
+                verbose_name="email address",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='name',
-            field=models.CharField(max_length=128, verbose_name='name'),
+            model_name="organization",
+            name="name",
+            field=models.CharField(max_length=128, verbose_name="name"),
         ),
     ]

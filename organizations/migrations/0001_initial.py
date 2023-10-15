@@ -7,29 +7,76 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('common', '0008_alter_address_city_alter_address_country_and_more'),
+        ("common", "0008_alter_address_city_alter_address_country_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Organization',
+            name="Organization",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('name', models.CharField(blank=True, max_length=128, verbose_name='name')),
-                ('information', models.TextField(default='No information available.', verbose_name='organization information')),
-                ('email', models.EmailField(error_messages={'unique': 'A user with that email already exists.'}, help_text='Required. 128 characters or fewer.', max_length=254, unique=True, verbose_name='email address')),
-                ('status', models.CharField(choices=[('A', 'This organization is currently active.'), ('I', 'This organization is currently inactive.'), ('U', "No information about this organization's status.")], default='U', max_length=128, verbose_name='organization status')),
-                ('address', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='common.address')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("uuid", models.UUIDField(default=uuid.uuid4, editable=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "name",
+                    models.CharField(blank=True, max_length=128, verbose_name="name"),
+                ),
+                (
+                    "information",
+                    models.TextField(
+                        default="No information available.",
+                        verbose_name="organization information",
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        error_messages={
+                            "unique": "A user with that email already exists."
+                        },
+                        help_text="Required. 128 characters or fewer.",
+                        max_length=254,
+                        unique=True,
+                        verbose_name="email address",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("A", "This organization is currently active."),
+                            ("I", "This organization is currently inactive."),
+                            ("U", "No information about this organization's status."),
+                        ],
+                        default="U",
+                        max_length=128,
+                        verbose_name="organization status",
+                    ),
+                ),
+                (
+                    "address",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="common.address",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'organization',
-                'verbose_name_plural': 'organizations',
+                "verbose_name": "organization",
+                "verbose_name_plural": "organizations",
             },
         ),
     ]
