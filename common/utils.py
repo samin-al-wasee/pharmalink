@@ -4,20 +4,27 @@ This module includs some utility functions used for various purposes in other ap
 
 from rest_framework.serializers import ModelSerializer
 from typing import Any
+from django.http import QueryDict
 
 
-def remove_blank_or_null(data: dict) -> dict:
+def remove_blank_or_null(data: QueryDict | dict) -> QueryDict | dict:
     """
-    This functions removes the blank ("") or null (None) type values from the given dictionary of data.
+    This functions removes the blank ("") or null (None) type values from the given QueryDict of data.
 
-    ARGS: data: dict
-    RETURNS: cleaned_data: dict
+    ARGS: data: QuerydDict | dict
+    RETURNS: cleaned_data: QueryDict
     """
 
+    print(type(data))
+    print(data)
     cleaned_data = {
-        key: value for key, value in data.items() if value != "" and value is not None
+        key: value
+        for key, value in data.items()
+        if "." in key or (value != "" and value is not None)
     }
-    return cleaned_data
+    cleaned_data_ = QueryDict("", mutable=True)
+    cleaned_data_.update(cleaned_data)
+    return cleaned_data_
 
 
 def get_nested_object_deserialized(
