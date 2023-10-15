@@ -7,9 +7,13 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from common.constants import (BLOOD_GROUPS, GENDERS,
-                              MODEL_CHARFIELD_MAX_LENGTH,
-                              MODEL_CHARFIELD_MIN_LENGTH, UNKNOWN)
+from common.constants import (
+    BLOOD_GROUPS,
+    GENDERS,
+    MODEL_CHARFIELD_MAX_LENGTH,
+    MODEL_CHARFIELD_MIN_LENGTH,
+    UNKNOWN,
+)
 from common.models import CommonModel, ModelHasAddress, ModelHasEmail
 
 from .managers import UserAccountManager

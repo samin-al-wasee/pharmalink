@@ -66,4 +66,3 @@ USER_ROLES_IN_ORGANIZATION = [
     (PATIENT, "Is a patient."),
     (OTHER, "Is a generic user."),
 ]
-

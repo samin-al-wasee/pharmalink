@@ -5,15 +5,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('common', '0004_alter_address_options_alter_address_city_and_more'),
+        ("common", "0004_alter_address_options_alter_address_city_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='address',
-            name='country',
-            field=django_countries.fields.CountryField(blank=True, default=None, max_length=2),
+            model_name="address",
+            name="country",
+            field=django_countries.fields.CountryField(
+                blank=True, default=None, max_length=2
+            ),
         ),
     ]

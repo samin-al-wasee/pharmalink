@@ -5,29 +5,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('common', '0003_alter_address_region'),
+        ("common", "0003_alter_address_region"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='address',
-            options={'ordering': ['country'], 'verbose_name': 'address', 'verbose_name_plural': 'addresses'},
+            name="address",
+            options={
+                "ordering": ["country"],
+                "verbose_name": "address",
+                "verbose_name_plural": "addresses",
+            },
         ),
         migrations.AlterField(
-            model_name='address',
-            name='city',
+            model_name="address",
+            name="city",
             field=models.CharField(default=None, max_length=128),
         ),
         migrations.AlterField(
-            model_name='address',
-            name='country',
+            model_name="address",
+            name="country",
             field=django_countries.fields.CountryField(default=None, max_length=2),
         ),
         migrations.AlterField(
-            model_name='address',
-            name='postal_code',
+            model_name="address",
+            name="postal_code",
             field=models.CharField(default=None, max_length=128),
         ),
     ]

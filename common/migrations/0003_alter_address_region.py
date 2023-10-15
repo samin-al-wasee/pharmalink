@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('common', '0002_alter_address_options_alter_address_unique_together'),
+        ("common", "0002_alter_address_options_alter_address_unique_together"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='address',
-            name='region',
+            model_name="address",
+            name="region",
             field=models.CharField(blank=True, max_length=128),
         ),
     ]

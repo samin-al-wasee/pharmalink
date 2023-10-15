@@ -1,8 +1,7 @@
 from rest_framework.serializers import CharField, ModelSerializer
 from rest_framework.validators import ValidationError
 
-from common.constants import (MODEL_CHARFIELD_MAX_LENGTH,
-                              MODEL_CHARFIELD_MIN_LENGTH)
+from common.constants import MODEL_CHARFIELD_MAX_LENGTH, MODEL_CHARFIELD_MIN_LENGTH
 from common.serializers import AddressSerializer
 from common.utils import get_nested_object_deserialized, remove_blank_or_null
 

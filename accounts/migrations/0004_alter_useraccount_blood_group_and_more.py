@@ -4,20 +4,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0003_alter_useraccount_blood_group_and_more'),
+        ("accounts", "0003_alter_useraccount_blood_group_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='useraccount',
-            name='blood_group',
-            field=models.CharField(choices=[('A+', 'A Positive'), ('A-', 'A Negative'), ('B+', 'B Positive'), ('B-', 'B Negative'), ('AB+', 'AB Positive'), ('AB-', 'AB Negative'), ('O+', 'O Positive'), ('O-', 'O Negative'), ('U', 'Unknown')], default='U', max_length=128, verbose_name='blood group'),
+            model_name="useraccount",
+            name="blood_group",
+            field=models.CharField(
+                choices=[
+                    ("A+", "A Positive"),
+                    ("A-", "A Negative"),
+                    ("B+", "B Positive"),
+                    ("B-", "B Negative"),
+                    ("AB+", "AB Positive"),
+                    ("AB-", "AB Negative"),
+                    ("O+", "O Positive"),
+                    ("O-", "O Negative"),
+                    ("U", "Unknown"),
+                ],
+                default="U",
+                max_length=128,
+                verbose_name="blood group",
+            ),
         ),
         migrations.AlterField(
-            model_name='useraccount',
-            name='gender',
-            field=models.CharField(choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other'), ('U', 'Unknown')], default='U', max_length=128, verbose_name='gender'),
+            model_name="useraccount",
+            name="gender",
+            field=models.CharField(
+                choices=[
+                    ("M", "Male"),
+                    ("F", "Female"),
+                    ("O", "Other"),
+                    ("U", "Unknown"),
+                ],
+                default="U",
+                max_length=128,
+                verbose_name="gender",
+            ),
         ),
     ]

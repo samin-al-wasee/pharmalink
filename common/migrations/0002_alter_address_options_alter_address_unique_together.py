@@ -4,18 +4,28 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('common', '0001_initial'),
+        ("common", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='address',
-            options={'ordering': ['country']},
+            name="address",
+            options={"ordering": ["country"]},
         ),
         migrations.AlterUniqueTogether(
-            name='address',
-            unique_together={('unit_no', 'street_no', 'line_1', 'line_2', 'city', 'region', 'postal_code', 'country')},
+            name="address",
+            unique_together={
+                (
+                    "unit_no",
+                    "street_no",
+                    "line_1",
+                    "line_2",
+                    "city",
+                    "region",
+                    "postal_code",
+                    "country",
+                )
+            },
         ),
     ]

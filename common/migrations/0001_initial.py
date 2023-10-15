@@ -5,25 +5,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Address',
+            name="Address",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('unit_no', models.CharField(blank=True, max_length=128)),
-                ('street_no', models.CharField(blank=True, max_length=128)),
-                ('line_1', models.CharField(blank=True, max_length=128)),
-                ('line_2', models.CharField(blank=True, max_length=128)),
-                ('city', models.CharField(max_length=128)),
-                ('region', models.CharField(max_length=128)),
-                ('postal_code', models.CharField(max_length=128)),
-                ('country', django_countries.fields.CountryField(max_length=2)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("unit_no", models.CharField(blank=True, max_length=128)),
+                ("street_no", models.CharField(blank=True, max_length=128)),
+                ("line_1", models.CharField(blank=True, max_length=128)),
+                ("line_2", models.CharField(blank=True, max_length=128)),
+                ("city", models.CharField(max_length=128)),
+                ("region", models.CharField(max_length=128)),
+                ("postal_code", models.CharField(max_length=128)),
+                ("country", django_countries.fields.CountryField(max_length=2)),
             ],
         ),
     ]
