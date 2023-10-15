@@ -51,3 +51,19 @@ ORGANIZATION_STATUS = [
     (ORGANIZATION_IS_INACTIVE, "This organization is currently inactive."),
     (ORGANIZATION_STATUS_UNKNOWN, "No information about this organization's status."),
 ]
+
+"""
+Constants and choices for OrganizationHasUserWithRole model
+"""
+
+STAFF = "S"
+DOCTOR = "D"
+PATIENT = "P"
+
+USER_ROLES_IN_ORGANIZATION = [
+    (STAFF, "Is a staff. E.g. Wardboy, Nurse etc."),
+    (DOCTOR, "Is a registered doctor."),
+    (PATIENT, "Is a patient."),
+    (OTHER, "Is a generic user."),
+]
+
