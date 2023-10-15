@@ -76,6 +76,9 @@ class Address(models.Model):
         super().clean()
         if self.country.code == "":
             raise ValidationError({"country": "Country can not be blank."})
+        
+    def __str__(self) -> str:
+        return f"{self.city}, {self.country.name} | {self.line_1}, {self.line_2}"
 
 
 class ModelHasAddress(models.Model):
