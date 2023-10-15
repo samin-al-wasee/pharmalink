@@ -21,9 +21,6 @@ class UserAccountCreateView(CreateAPIView):
     authentication_classes = [JWTAuthentication, SessionAuthentication]
     permission_classes = [IsNotAuthenticated]
 
-    def get_view_name(self):
-        return "User Account Create"
-
     def permission_denied(self, request: Request, message=None, code=None) -> None:
         if request.user.is_staff:
             raise PermissionDenied(
@@ -41,9 +38,6 @@ class UserAccountAuthDetailView(RetrieveAPIView):
     serializer_class = UserAccountSerializer
     authentication_classes = [JWTAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
-
-    def get_view_name(self):
-        return "User Account Authenticated Details"
 
     def retrieve(self, request, *args, **kwargs):
         authenticated_user_account: UserAccount = request.user
