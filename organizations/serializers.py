@@ -31,7 +31,8 @@ class OrganizationSerializer(ModelSerializer):
         organization_address: dict = validated_data.pop("address", None)
         if organization_address is not None:
             validated_data["address"] = get_nested_object_deserialized(
-                data=organization_address
+                data=organization_address,
+                serializer_class=AddressSerializer
             )
         return super().create(validated_data)
 

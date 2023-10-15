@@ -1,6 +1,7 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from .models import Organization
 from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAuthenticatedOwner
 from .serializers import OrganizationSerializer
 from accounts.models import UserAccount
 from common.constants import ORGANIZATION_IS_ACTIVE
@@ -40,7 +41,7 @@ class OrganizationListCreateView(ListCreateAPIView):
 class OrganizationDetailsUpdateView(RetrieveUpdateDestroyAPIView):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOwner]
     lookup_field = "uuid"
 
     def delete(self, request, *args, **kwargs):
