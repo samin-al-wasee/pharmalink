@@ -56,6 +56,7 @@ class OrganizationDetailsUpdateView(RetrieveUpdateDestroyAPIView):
 
 
 class OrganizationUserListCreateView(ListCreateAPIView):
+    queryset = OrganizationHasUserWithRole.objects.all()
     serializer_class = OrganizationUserSerializer
     permission_classes = [IsAuthenticatedOwner]
 
@@ -71,7 +72,32 @@ class OrganizationUserListCreateView(ListCreateAPIView):
                 "Only the organization owner can see the organization's users' list"
             )
 
-        self.queryset = OrganizationHasUserWithRole.objects.filter(
-            organization__uuid=organization.uuid
-        )
         return super().check_permissions(request)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        organization_uuid = self.request.parser_context["kwargs"]["uuid"]
+        queryset = queryset.filter(organization__uuid=organization_uuid)
+        return queryset
+
+
+class OrganizationUserDetailsUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+    queryset = OrganizationHasUserWithRole.objects.all()
+    serializer_class = OrganizationUserSerializer
+    permission_classes = [IsAuthenticatedOwner]
+    lookup_field = "user_account__uuid"
+    lookup_url_kwarg = "user_uuid"
+
+    def check_permissions(self, request):
+        organization_uuid = request.parser_context["kwargs"]["organization_uuid"]
+        try:
+            get_object_or_404(klass=Organization, uuid=organization_uuid)
+        except Http404:
+            raise NotFound("Organization not found.")
+        return super().check_permissions(request)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        organization_uuid = self.request.parser_context["kwargs"]["organization_uuid"]
+        queryset = queryset.filter(organization__uuid=organization_uuid)
+        return queryset

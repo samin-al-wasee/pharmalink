@@ -53,7 +53,7 @@ class OrganizationSerializer(ModelSerializer):
 class OrganizationUserSerializer(ModelSerializer):
     class Meta:
         model = OrganizationHasUserWithRole
-        fields = "__all__"
+        exclude = ("id",)
         read_only = ("organization",)
 
     def is_valid(self, *, raise_exception=False):
