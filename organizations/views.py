@@ -1,3 +1,4 @@
+from typing import Any
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import NotFound, PermissionDenied
@@ -27,6 +28,13 @@ class OrganizationListCreateView(ListCreateAPIView):
             allowed_methods = [method for method in allowed_methods if method != "POST"]
 
         return allowed_methods
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request and not self.request.path_info.endswith("organizations/"):
+            self.http_method_names = [
+                method for method in self.http_method_names if method != "post"
+            ]
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         if self.request and self.request.path_info.endswith("owned/"):
