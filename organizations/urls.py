@@ -24,9 +24,14 @@ urlpatterns = [
         name="organization-details-update",
     ),
     path(
+        "<str:uuid>/join",
+        OrganizationUserListCreateView.as_view(),
+        name="organization-user-create-as-admin",
+    ),
+    path(
         "<str:uuid>/users/",
         OrganizationUserListCreateView.as_view(),
-        name="organization-user-list-create",
+        name="organization-user-list-create-as-owner",
     ),
     path(
         "<str:organization_uuid>/users/<str:user_uuid>",

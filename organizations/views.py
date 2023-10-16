@@ -68,6 +68,22 @@ class OrganizationUserListCreateView(ListCreateAPIView):
     serializer_class = OrganizationUserSerializer
     permission_classes = [IsAuthenticatedOwner]
 
+    @property
+    def allowed_methods(self):
+        allowed_methods = super().allowed_methods
+
+        if self.request and self.request.path_info.endswith("join"):
+            allowed_methods = [method for method in allowed_methods if method != "GET"]
+
+        return allowed_methods
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request and self.request.path_info.endswith("join"):
+            self.http_method_names = [
+                method for method in self.http_method_names if method != "get"
+            ]
+        return super().dispatch(request, *args, **kwargs)
+
     def check_permissions(self, request: Request):
         organization_uuid = request.parser_context["kwargs"]["uuid"]
         try:
