@@ -26,7 +26,7 @@ urlpatterns = [
     path(
         "<str:uuid>/join",
         OrganizationUserListCreateView.as_view(),
-        name="organization-user-create-as-admin",
+        name="organization-user-create-as-user",
     ),
     path(
         "<str:uuid>/users/",
