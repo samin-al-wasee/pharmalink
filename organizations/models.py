@@ -48,6 +48,7 @@ class OrganizationHasUserWithRole(models.Model):
     class Meta:
         verbose_name = _("organization has user with role")
         verbose_name_plural = _("organizations have users with roles")
+        unique_together = ["organization", "user_account"]
 
     def __str__(self) -> str:
         return f"{str(self.user_account)}({self.role}) @ {self.organization.name}"
