@@ -3,8 +3,10 @@ from django.urls import path
 from .views import (
     OrganizationDetailsUpdateView,
     OrganizationListCreateView,
+    OrganizationListViewOnlyOwned,
+    OrganizationUserCreateViewForUser,
     OrganizationUserDetailsUpdateDeleteView,
-    OrganizationUserListCreateView,
+    OrganizationUserListCreateViewForOwner,
 )
 
 urlpatterns = [
@@ -15,26 +17,26 @@ urlpatterns = [
     ),
     path(
         "owned/",
-        OrganizationListCreateView.as_view(),
+        OrganizationListViewOnlyOwned.as_view(),
         name="organizations-list-owned",
     ),
     path(
-        "<str:uuid>",
+        "join",
+        OrganizationUserCreateViewForUser.as_view(),
+        name="organization-user-create-as-user",
+    ),
+    path(
+        "<str:org_uuid>",
         OrganizationDetailsUpdateView.as_view(),
         name="organization-details-update",
     ),
     path(
-        "<str:uuid>/join",
-        OrganizationUserListCreateView.as_view(),
-        name="organization-user-create-as-user",
-    ),
-    path(
-        "<str:uuid>/users/",
-        OrganizationUserListCreateView.as_view(),
+        "<str:org_uuid>/users/",
+        OrganizationUserListCreateViewForOwner.as_view(),
         name="organization-user-list-create-as-owner",
     ),
     path(
-        "<str:organization_uuid>/users/<str:user_uuid>",
+        "<str:org_uuid>/users/<str:user_uuid>",
         OrganizationUserDetailsUpdateDeleteView.as_view(),
         name="organization-user-details-update-delete",
     ),

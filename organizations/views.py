@@ -1,50 +1,42 @@
-from typing import Any
-from django.http import Http404
-from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import NotFound, PermissionDenied
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    ListAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.request import Request
 
 from accounts.models import UserAccount
-from common.constants import ORGANIZATION_IS_ACTIVE
+from common.constants import ORGANIZATION_IS_ACTIVE, ORGANIZATION_IS_INACTIVE
 
 from .models import Organization, OrganizationHasUserWithRole
-from .permissions import IsAuthenticatedOwner
-from .serializers import OrganizationSerializer, OrganizationUserSerializer
+from .permissions import IsOrganizationOwner
+from .serializers import (
+    OrganizationSerializer,
+    OrganizationUserBaseSerializer,
+    OrganizationUserSeralizerForOwner,
+    OrganizationUserSerializer,
+    OrganizationUserSerializerForUser,
+)
 
 
 # Create your views here.
-class OrganizationListCreateView(ListCreateAPIView):
-    queryset = Organization.objects.filter(status=ORGANIZATION_IS_ACTIVE)
+class OrganizationListViewOnlyOwned(ListAPIView):  # DONE
     serializer_class = OrganizationSerializer
     permission_classes = [IsAuthenticated]
 
-    @property
-    def allowed_methods(self):
-        allowed_methods = super().allowed_methods
-
-        if self.request and not self.request.path_info.endswith("organizations/"):
-            allowed_methods = [method for method in allowed_methods if method != "POST"]
-
-        return allowed_methods
-
-    def dispatch(self, request, *args, **kwargs):
-        if self.request and not self.request.path_info.endswith("organizations/"):
-            self.http_method_names = [
-                method for method in self.http_method_names if method != "post"
-            ]
-        return super().dispatch(request, *args, **kwargs)
-
     def get_queryset(self):
-        if self.request and self.request.path_info.endswith("owned/"):
-            authenticated_user_account: UserAccount = self.request.user
-            queryset = Organization.objects.filter(
-                owner_user_account_id=authenticated_user_account.id
-            )
-            return queryset
+        authenticated_user_account: UserAccount = self.request.user
+        queryset = Organization.objects.select_related().filter(
+            owner_user_account_id=authenticated_user_account.id
+        )
+        return queryset
 
-        return super().get_queryset()
+
+class OrganizationListCreateView(ListCreateAPIView):  # DONE
+    queryset = Organization.objects.filter(status=ORGANIZATION_IS_ACTIVE)
+    serializer_class = OrganizationSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer: OrganizationSerializer):
         authenticated_user_account: UserAccount = self.request.user
@@ -52,76 +44,72 @@ class OrganizationListCreateView(ListCreateAPIView):
         super().perform_create(serializer)
 
 
-class OrganizationDetailsUpdateView(RetrieveUpdateDestroyAPIView):
-    queryset = Organization.objects.all()
+class OrganizationDetailsUpdateView(RetrieveUpdateDestroyAPIView):  # DONE
+    queryset = Organization.objects.filter()
     serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticatedOwner]
+    permission_classes = [IsOrganizationOwner]
     lookup_field = "uuid"
+    lookup_url_kwarg = "org_uuid"
 
-    def perform_destroy(self, instance: Organization):
-        instance.status = "I"
+    def perform_destroy(self, instance: Organization):  # Possible REFACTOR
+        instance.status = ORGANIZATION_IS_INACTIVE
         instance.save()
 
 
-class OrganizationUserListCreateView(ListCreateAPIView):
-    queryset = OrganizationHasUserWithRole.objects.all()
-    serializer_class = OrganizationUserSerializer
-    permission_classes = [IsAuthenticatedOwner]
+class OrganizationUserCreateViewForUser(CreateAPIView):  # DONE
+    serializer_class = OrganizationUserSerializerForUser
+    permission_classes = [IsAuthenticated]
 
-    @property
-    def allowed_methods(self):
-        allowed_methods = super().allowed_methods
+    def perform_create(
+        self, serializer: OrganizationUserSerializerForUser
+    ):  # Possible REFACTOR
+        user_account: UserAccount = self.request.user
+        serializer.validated_data["user_account"] = user_account
+        return super().perform_create(serializer)
 
-        if self.request and self.request.path_info.endswith("join"):
-            allowed_methods = [method for method in allowed_methods if method != "GET"]
 
-        return allowed_methods
-
-    def dispatch(self, request, *args, **kwargs):
-        if self.request and self.request.path_info.endswith("join"):
-            self.http_method_names = [
-                method for method in self.http_method_names if method != "get"
-            ]
-        return super().dispatch(request, *args, **kwargs)
-
-    def check_permissions(self, request: Request):
-        organization_uuid = request.parser_context["kwargs"]["uuid"]
-        try:
-            organization = get_object_or_404(klass=Organization, uuid=organization_uuid)
-        except Http404:
-            raise NotFound
-
-        if organization.owner_user_account.id != request.user.id:
-            raise PermissionDenied(
-                "Only the organization owner can see the organization's users' list"
-            )
-
-        return super().check_permissions(request)
+class OrganizationUserListCreateViewForOwner(ListCreateAPIView):  # DONE
+    serializer_class = OrganizationUserSeralizerForOwner
+    permission_classes = [IsOrganizationOwner]
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        organization_uuid = self.request.parser_context["kwargs"]["uuid"]
-        queryset = queryset.filter(organization__uuid=organization_uuid)
+        organization_uuid = self.request.parser_context["kwargs"]["org_uuid"]
+        queryset = OrganizationHasUserWithRole.objects.select_related().filter(
+            organization__uuid=organization_uuid
+        )
         return queryset
 
+    def perform_create(self, serializer):  # Possible REFACTOR
+        organization_uuid = self.request.parser_context["kwargs"]["org_uuid"]
+        organization: Organization = Organization.objects.get(uuid=organization_uuid)
+        serializer.validated_data["organization"] = organization
+        return super().perform_create(serializer)
 
-class OrganizationUserDetailsUpdateDeleteView(RetrieveUpdateDestroyAPIView):
-    queryset = OrganizationHasUserWithRole.objects.all()
-    serializer_class = OrganizationUserSerializer
-    permission_classes = [IsAuthenticatedOwner]
+
+class OrganizationUserDetailsUpdateDeleteView(RetrieveUpdateDestroyAPIView):  # DONE
+    permission_classes = [IsOrganizationOwner]
     lookup_field = "user_account__uuid"
     lookup_url_kwarg = "user_uuid"
 
-    def check_permissions(self, request):
-        organization_uuid = request.parser_context["kwargs"]["organization_uuid"]
-        try:
-            get_object_or_404(klass=Organization, uuid=organization_uuid)
-        except Http404:
-            raise NotFound("Organization not found.")
-        return super().check_permissions(request)
-
     def get_queryset(self):
-        queryset = super().get_queryset()
-        organization_uuid = self.request.parser_context["kwargs"]["organization_uuid"]
-        queryset = queryset.filter(organization__uuid=organization_uuid)
+        organization_uuid = self.request.parser_context["kwargs"]["org_uuid"]
+        queryset = OrganizationHasUserWithRole.objects.select_related().filter(
+            organization__uuid=organization_uuid
+        )
         return queryset
+
+    def get_serializer_class(self):
+        if self.request.method == "PUT" or self.request.method == "PATCH":
+            return OrganizationUserBaseSerializer
+        else:
+            return OrganizationUserSerializer
+
+    def perform_update(self, serializer: OrganizationUserBaseSerializer):
+        organization_user_with_role: OrganizationHasUserWithRole = serializer.instance
+        serializer.validated_data[
+            "organization"
+        ] = organization_user_with_role.organization
+        serializer.validated_data[
+            "user_account"
+        ] = organization_user_with_role.user_account
+        return super().perform_update(serializer)
