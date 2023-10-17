@@ -80,5 +80,5 @@ DOSAGE_FORMS = [
     (TABLET, "Tablet"),
     (CAPSULE, "Capsule"),
     (OINTMENT, "Ointment"),
-    (INJECTION, "Tablet"),
+    (INJECTION, "Injection"),
 ]

@@ -24,10 +24,10 @@ class ModelHasNameAndSlug(models.Model):
 
     def save(
         self,
-        force_insert: bool = ...,
-        force_update: bool = ...,
-        using: str | None = ...,
-        update_fields: Iterable[str] | None = ...,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None
     ) -> None:
         if not self.slug:
             self.slug = slugify(self.name)
