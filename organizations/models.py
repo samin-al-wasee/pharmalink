@@ -50,5 +50,5 @@ class OrganizationHasUserWithRole(models.Model):
         verbose_name_plural = _("organizations have users with roles")
         unique_together = ["organization", "user_account"]
 
-    def __str__(self) -> str:
+    def __str__(self) -> str: # Needs REFACTOR
         return f"{str(self.user_account)}({self.role}) @ {self.organization.name}"

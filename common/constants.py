@@ -66,3 +66,19 @@ USER_ROLES_IN_ORGANIZATION = [
     (PATIENT, "Is a patient."),
     (OTHER, "Is a generic user."),
 ]
+
+"""
+Constants and choices for Medicine-related models
+"""
+
+TABLET = "T"
+CAPSULE = "S"
+OINTMENT = "O"
+INJECTION = "I"
+
+DOSAGE_FORMS = [
+    (TABLET, "Tablet"),
+    (CAPSULE, "Capsule"),
+    (OINTMENT, "Ointment"),
+    (INJECTION, "Tablet"),
+]
