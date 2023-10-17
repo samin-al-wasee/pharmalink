@@ -5,7 +5,7 @@ MODEL_CHARFIELD_MIN_LENGTH = 8
 MODEL_CHARFIELD_MAX_LENGTH = 128
 
 """
-Constants and choices for the UserAccount model
+Constants and choices for UserAccount model
 """
 MALE = "M"
 FEMALE = "F"
@@ -68,7 +68,7 @@ USER_ROLES_IN_ORGANIZATION = [
 ]
 
 """
-Constants and choices for Medicine-related models
+Constants and choices for MedicineGeneric, MedicineBrand, MedicineBrandHasDosageWithInfo models
 """
 
 TABLET = "T"
