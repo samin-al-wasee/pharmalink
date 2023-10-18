@@ -3,7 +3,11 @@ from rest_framework.validators import ValidationError
 
 from common.constants import MODEL_CHARFIELD_MAX_LENGTH, MODEL_CHARFIELD_MIN_LENGTH
 from common.serializers import AddressSerializer
-from common.utils import get_nested_object_deserialized, remove_blank_or_null
+from common.utils import (
+    replace_nested_dict_with_objects,
+    remove_blank_or_null,
+    exclude_fields_from_data,
+)
 
 from .models import UserAccount
 
@@ -35,9 +39,6 @@ class UserAccountSerializer(ModelSerializer):
     repeated_password = CharField(
         min_length=MODEL_CHARFIELD_MIN_LENGTH,
         max_length=MODEL_CHARFIELD_MAX_LENGTH,
-        allow_blank=False,
-        allow_null=False,
-        required=True,
         write_only=True,
     )
     address = AddressSerializer(allow_null=True, required=False)
@@ -70,13 +71,15 @@ class UserAccountSerializer(ModelSerializer):
         - Otherwise create a new address object and save
         - Finally proceed to create the actual user object
         """
-        validated_data.pop("repeated_password")
-        user_address: dict = validated_data.pop("address", None)
-        if user_address is not None:
-            validated_data["address"] = get_nested_object_deserialized(
-                data=user_address, serializer_class=AddressSerializer
-            )
-        return super().create(validated_data)
-
-    def save(self, **kwargs):
-        return super().save(**kwargs)
+        fields_to_exclude = ("repeated_password",)
+        validated_data_without_unnecessary_fields = exclude_fields_from_data(
+            data=validated_data, fields=fields_to_exclude
+        )
+        fields_to_convert = ("address",)
+        serializer_classes = (AddressSerializer,)
+        validated_data_replaced_final = replace_nested_dict_with_objects(
+            data=validated_data_without_unnecessary_fields,
+            fields=fields_to_convert,
+            serializer_classes=serializer_classes,
+        )
+        return super().create(validated_data_replaced_final)

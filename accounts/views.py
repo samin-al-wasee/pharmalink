@@ -1,8 +1,5 @@
-from django.http import Http404
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import AuthenticationFailed, NotFound, PermissionDenied
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -34,7 +31,6 @@ class UserAccountCreateView(CreateAPIView):
 
 
 class UserAccountAuthDetailView(RetrieveAPIView):
-    queryset = None
     serializer_class = UserAccountSerializer
     authentication_classes = [JWTAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]

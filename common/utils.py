@@ -33,15 +33,39 @@ def remove_blank_or_null(data: QueryDict | dict) -> QueryDict | dict:
         }
         cleaned_data.update(flattened_dictionary)
 
-    cleaned_data_ = QueryDict("", mutable=True)
+    cleaned_data_ = QueryDict("", mutable=True)  # Research QueryDict
     cleaned_data_.update(cleaned_data)
     return cleaned_data_
 
 
-def get_nested_object_deserialized(
-    data: dict, serializer_class: ModelSerializer
-) -> Any:
-    serializer: ModelSerializer = serializer_class(data=data)
+def exclude_fields_from_data(data: dict, fields: tuple | list):
+    excluded_data = {field: data.pop(field, None) for field in fields}
+    return data
+
+
+def replace_nested_dict_with_objects(
+    data: dict, fields: tuple | list, serializer_classes: tuple | list
+) -> dict:
+    for field, serializer_class in zip(fields, serializer_classes):
+        data_to_replace = data.pop(field, None)
+        if data_to_replace is None:
+            data[field] = None
+        elif type(data_to_replace) is list:
+            data[field] = _get_nested_object_deserialized(
+                data=data_to_replace, serializer_class=serializer_class, many=True
+            )
+        else:
+            data[field] = _get_nested_object_deserialized(
+                data=data_to_replace, serializer_class=serializer_class
+            )
+
+    return data
+
+
+def _get_nested_object_deserialized(
+    data: dict | list, serializer_class: ModelSerializer, many: bool = False
+) -> list | Any:
+    serializer: ModelSerializer = serializer_class(data=data, many=many)
     serializer.is_valid(raise_exception=True)
     deserialized_instance = serializer.save()
     return deserialized_instance

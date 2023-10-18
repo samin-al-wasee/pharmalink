@@ -40,7 +40,7 @@ class UserAccount(
     )
     name = models.CharField(
         _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True
-    )
+    ) # Possible REFACTOR
     date_of_birth = models.DateField(
         verbose_name=_("date of birth"), blank=True, null=True
     )
@@ -94,10 +94,3 @@ class UserAccount(
 
     def get_full_name(self) -> str:
         return self.name
-
-    def email_user(self) -> Any:
-        """
-        Could be implemented later for user verification purpose.
-        """
-
-        pass

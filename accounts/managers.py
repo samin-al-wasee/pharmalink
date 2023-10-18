@@ -47,10 +47,9 @@ class UserAccountManager(UserManager):
         By default does not provide password hashing hence "create_user()" method is called.
         This method receives the entire user data and passes appropriate values for the parameters of "create_user()" method.
         """
-        kwargs_copy = kwargs.copy()
-        username = kwargs_copy.pop("username")
-        email = kwargs_copy.pop("email")
-        password = kwargs_copy.pop("password")
+        username = kwargs.pop("username")
+        email = kwargs.pop("email")
+        password = kwargs.pop("password")
         return self.create_user(
-            username=username, email=email, password=password, **kwargs_copy
+            username=username, email=email, password=password, **kwargs
         )
