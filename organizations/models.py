@@ -14,7 +14,7 @@ from common.models import CommonModel, ModelHasAddress, ModelHasEmail
 
 # Create your models here.
 class Organization(CommonModel, ModelHasEmail, ModelHasAddress):
-    name = models.CharField(_("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH)
+    name = models.CharField(_("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH) # Should be UNIQUE
     information = models.TextField(
         verbose_name=_("organization information"), default="No information available."
     )

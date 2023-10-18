@@ -1,7 +1,7 @@
 from typing import Any
 
 from rest_framework.exceptions import NotFound
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 
 from accounts.models import UserAccount
@@ -26,7 +26,7 @@ class IsOrganizationOwner(BasePermission):
         try:
             self.organization: Organization = (
                 Organization.objects.select_related().get(
-                    uuid=request.parser_context["kwargs"]["org_uuid"]
+                    uuid=request.parser_context.get("kwargs").get("org_uuid")
                 )
                 if self.organization is None
                 else self.organization

@@ -1,14 +1,14 @@
 from django.db import IntegrityError
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework.fields import empty
+from rest_framework.request import Request
 from rest_framework.serializers import ModelSerializer, UUIDField
 from rest_framework.validators import ValidationError
 
 from accounts.models import UserAccount
 from accounts.serializers import UserAccountSerializer
 from common.serializers import AddressSerializer
-from common.utils import get_nested_object_deserialized, remove_blank_or_null
+from common.utils import replace_nested_dict_with_objects, remove_blank_or_null
 
 from .models import Organization, OrganizationHasUserWithRole
 
@@ -31,26 +31,35 @@ class OrganizationSerializer(ModelSerializer):
     address = AddressSerializer(allow_null=True, required=False)
     owner_user_account = UserAccountSerializer(read_only=True)
 
-    def is_valid(self, *, raise_exception=False):  # Needs REFACTOR
+    def is_valid(self, *, raise_exception=False):
         self.initial_data = remove_blank_or_null(self.initial_data)
         return super().is_valid(raise_exception=raise_exception)
 
     def create(self, validated_data):  # Needs REFACTOR
-        organization_address: dict = validated_data.pop("address", None)
-        if organization_address is not None:
-            validated_data["address"] = get_nested_object_deserialized(
-                data=organization_address, serializer_class=AddressSerializer
-            )
-        return super().create(validated_data)
+        request: Request = self.context.get("request")
+        authenticated_user_account: UserAccount = request.user
+        validated_data["owner_user_account"] = authenticated_user_account
+        fields_to_convert = ("address",)
+        serializer_classes = (AddressSerializer,)
+        validated_data_replaced_final = replace_nested_dict_with_objects(
+            data=validated_data,
+            fields=fields_to_convert,
+            serializer_classes=serializer_classes,
+        )
+        return super().create(validated_data_replaced_final)
 
     def update(self, instance, validated_data):  # Needs REFACTOR
-        organization_address: dict = validated_data.pop("address", None)
-        if organization_address is not None:
-            validated_data["address"] = get_nested_object_deserialized(
-                data=organization_address,
-                serializer_class=AddressSerializer,
-            )
-        return super().update(instance, validated_data)
+        fields_to_convert = ("address",)
+        serializer_classes = (AddressSerializer,)
+        validated_data_replaced_final = replace_nested_dict_with_objects(
+            data=validated_data,
+            fields=fields_to_convert,
+            serializer_classes=serializer_classes,
+        )
+        return super().update(instance, validated_data_replaced_final)
+
+    def save(self, **kwargs):
+        return super().save(**kwargs)
 
 
 class OrganizationUserBaseSerializer(ModelSerializer):
@@ -64,19 +73,17 @@ class OrganizationUserBaseSerializer(ModelSerializer):
 
     def replace_object_uuid_with_object(
         self,
-        validated_data,
+        data,
         object_uuid,
         object_uuid_field_name,
         object_field_name,
         model_class,
     ):
-        validated_data_ = validated_data.copy()
-
         if object_uuid is not None:
             try:
                 object_ = get_object_or_404(klass=model_class, uuid=object_uuid)
-                validated_data_[object_field_name] = object_
-                return validated_data_
+                data[object_field_name] = object_
+                return data
             except Http404:
                 raise ValidationError(
                     {
@@ -84,10 +91,21 @@ class OrganizationUserBaseSerializer(ModelSerializer):
                     }
                 )
 
+    def update(self, instance, validated_data):
+        data_to_update = {
+            "organization": instance.organization,
+            "user_account": instance.user_account,
+        }
+        validated_data.update(data_to_update)
+        return super().update(instance, validated_data)
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation["organization"] = instance.organization.uuid
-        representation["user_account"] = instance.user_account.uuid
+        data_to_update = {
+            "organization": instance.organization.uuid,
+            "user_account": instance.user_account.uuid,
+        }
+        representation.update(data_to_update)
         return representation
 
 
@@ -116,9 +134,12 @@ class OrganizationUserSerializerForUser(OrganizationUserBaseSerializer):
 
     def create(self, validated_data):
         try:
+            request: Request = self.context.get("request")
+            authenticated_user_account: UserAccount = request.user
+            validated_data["user_account"] = authenticated_user_account
             organization_uuid = validated_data.pop("organization_uuid", None)
             validated_data = self.replace_object_uuid_with_object(
-                validated_data=validated_data,
+                data=validated_data,
                 object_uuid=organization_uuid,
                 object_uuid_field_name="organization_uuid",
                 object_field_name="organization",
@@ -146,15 +167,21 @@ class OrganizationUserSeralizerForOwner(OrganizationUserBaseSerializer):
 
     def create(self, validated_data):
         try:
+            request: Request = self.context.get("request")
+            organization_uuid = request.parser_context.get("kwargs").get("org_uuid")
+            organization: Organization = Organization.objects.get(
+                uuid=organization_uuid
+            )
+            validated_data["organization"] = organization
             user_account_uuid = validated_data.pop("user_account_uuid", None)
-            validated_data = self.replace_object_uuid_with_object(
-                validated_data=validated_data,
+            validated_data_replaced_final = self.replace_object_uuid_with_object(
+                data=validated_data,
                 object_uuid=user_account_uuid,
                 object_uuid_field_name="user_account_uuid",
                 object_field_name="user_account",
                 model_class=UserAccount,
             )
-            return super().create(validated_data)
+            return super().create(validated_data_replaced_final)
         except IntegrityError:
             raise ValidationError(
                 {
