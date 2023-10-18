@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "common.apps.CommonConfig",
     "organizations.apps.OrganizationsConfig",
-    "medicines.apps.MedicinesConfig"
+    "medicines.apps.MedicinesConfig",
+    "services.apps.ServicesConfig",
 ]
 
 MIDDLEWARE = [
