@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
@@ -6,7 +7,6 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 
-from accounts.models import UserAccount
 from common.constants import ORGANIZATION_IS_ACTIVE, ORGANIZATION_IS_INACTIVE
 
 from .models import Organization, OrganizationHasUserWithRole
@@ -26,7 +26,7 @@ class OrganizationListViewOnlyOwned(ListAPIView):  # DONE
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        authenticated_user_account: UserAccount = self.request.user
+        authenticated_user_account: get_user_model() = self.request.user
         queryset = Organization.objects.select_related().filter(
             owner_user_account_id=authenticated_user_account.id
         )

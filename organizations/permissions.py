@@ -1,10 +1,9 @@
 from typing import Any
 
+from django.contrib.auth import get_user_model
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
-
-from accounts.models import UserAccount
 
 from .models import Organization
 
@@ -20,7 +19,7 @@ class IsOrganizationOwner(BasePermission):
     ) -> (
         tuple
     ):  # Needs REFACTOR (Extra conditionals not needed, qurysets are lazily evaluated)
-        self.user_account: UserAccount = (
+        self.user_account: get_user_model() = (
             request.user if self.user_account is None else self.user_account
         )
         try:

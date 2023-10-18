@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
@@ -6,14 +7,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import UserAccount
 from .permissions import IsNotAuthenticated
 from .serializers import UserAccountSerializer
 
 
 # Create your views here.
 class UserAccountCreateView(CreateAPIView):
-    queryset = UserAccount.objects.all()
+    queryset = get_user_model().objects.all()
     serializer_class = UserAccountSerializer
     authentication_classes = [JWTAuthentication, SessionAuthentication]
     permission_classes = [IsNotAuthenticated]
@@ -36,7 +36,7 @@ class UserAccountAuthDetailView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def retrieve(self, request, *args, **kwargs):
-        authenticated_user_account: UserAccount = request.user
+        authenticated_user_account: get_user_model() = request.user
         serializer: UserAccountSerializer = self.get_serializer(
             authenticated_user_account
         )

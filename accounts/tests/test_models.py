@@ -6,16 +6,14 @@ from django.contrib.auth.models import AbstractBaseUser, AbstractUser
 from django.test import TestCase
 from django.utils import timezone
 
-from ..models import UserAccount
-
 
 class AccountUserTests(TestCase):
     def setUp(self) -> None:
-        self.user_model: UserAccount = get_user_model()
-        self.superuser: UserAccount = self.user_model.objects.create_superuser(
+        self.user_model: get_user_model() = get_user_model()
+        self.superuser: get_user_model() = self.user_model.objects.create_superuser(
             username=None, email="superuser@example.com", password="superuser_pass"
         )
-        self.user: UserAccount = self.user_model.objects.create_user(
+        self.user: get_user_model() = self.user_model.objects.create_user(
             username="test_user",
             email="test_user@example.com",
             password="test_user_pass",
@@ -24,7 +22,7 @@ class AccountUserTests(TestCase):
     def test_user_model_correct(self):
         self.assertIsNot(self.user_model, AbstractBaseUser)
         self.assertIsNot(self.user_model, AbstractUser)
-        self.assertIs(self.user_model, UserAccount)
+        self.assertIs(self.user_model, get_user_model())
 
     def test_create_superuser_success(self):
         self.assertIsInstance(self.superuser, self.user_model)

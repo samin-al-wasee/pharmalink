@@ -1,7 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import UserAccount
 from common.constants import (
     MODEL_CHARFIELD_MAX_LENGTH,
     ORGANIZATION_STATUS,
@@ -27,7 +27,9 @@ class Organization(CommonModel, ModelHasEmail, ModelHasAddress):
         choices=ORGANIZATION_STATUS,
         default=ORGANIZATION_STATUS_UNKNOWN,
     )
-    owner_user_account = models.ForeignKey(to=UserAccount, on_delete=models.PROTECT)
+    owner_user_account = models.ForeignKey(
+        to=get_user_model(), on_delete=models.PROTECT
+    )
 
     class Meta:
         verbose_name = _("organization")
@@ -39,7 +41,7 @@ class Organization(CommonModel, ModelHasEmail, ModelHasAddress):
 
 class OrganizationHasUserWithRole(models.Model):
     organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE)
-    user_account = models.ForeignKey(to=UserAccount, on_delete=models.CASCADE)
+    user_account = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     role = models.CharField(
         verbose_name=_("user's role"),
         max_length=MODEL_CHARFIELD_MAX_LENGTH,

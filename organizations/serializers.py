@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -5,7 +6,6 @@ from rest_framework.request import Request
 from rest_framework.serializers import ModelSerializer, UUIDField
 from rest_framework.validators import ValidationError
 
-from accounts.models import UserAccount
 from accounts.serializers import UserAccountSerializer
 from common.serializers import AddressSerializer
 from common.utils import remove_blank_or_null, replace_nested_dict_with_objects
@@ -37,7 +37,7 @@ class OrganizationSerializer(ModelSerializer):
 
     def create(self, validated_data):  # Needs REFACTOR
         request: Request = self.context.get("request")
-        authenticated_user_account: UserAccount = request.user
+        authenticated_user_account: get_user_model() = request.user
         validated_data["owner_user_account"] = authenticated_user_account
         fields_to_convert = ("address",)
         serializer_classes = (AddressSerializer,)
@@ -135,7 +135,7 @@ class OrganizationUserSerializerForUser(OrganizationUserBaseSerializer):
     def create(self, validated_data):
         try:
             request: Request = self.context.get("request")
-            authenticated_user_account: UserAccount = request.user
+            authenticated_user_account: get_user_model() = request.user
             validated_data["user_account"] = authenticated_user_account
             organization_uuid = validated_data.pop("organization_uuid", None)
             validated_data = self.replace_object_uuid_with_object(
@@ -179,7 +179,7 @@ class OrganizationUserSeralizerForOwner(OrganizationUserBaseSerializer):
                 object_uuid=user_account_uuid,
                 object_uuid_field_name="user_account_uuid",
                 object_field_name="user_account",
-                model_class=UserAccount,
+                model_class=get_user_model(),
             )
             return super().create(validated_data_replaced_final)
         except IntegrityError:

@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework.serializers import CharField, ModelSerializer
 from rest_framework.validators import ValidationError
 
@@ -9,12 +10,10 @@ from common.utils import (
     replace_nested_dict_with_objects,
 )
 
-from .models import UserAccount
-
 
 class UserAccountSerializer(ModelSerializer):
     class Meta:
-        model = UserAccount
+        model = get_user_model()
         fields = (
             "uuid",
             "username",

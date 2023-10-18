@@ -1,7 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import UserAccount
 from common.constants import RATINGS
 from common.models import CommonModel
 from medicines.models import MedicineBrand
@@ -17,7 +17,7 @@ class ModelHasContent(models.Model):
 
 
 class ModelLinksUserOrganization(CommonModel, ModelHasContent):
-    user_account = models.ForeignKey(to=UserAccount, on_delete=models.CASCADE)
+    user_account = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE)
 
     class Meta:
@@ -26,10 +26,14 @@ class ModelLinksUserOrganization(CommonModel, ModelHasContent):
 
 class ModelLinksUsersPatientDoctor(CommonModel):
     user_account_patient = models.ForeignKey(
-        to=UserAccount, related_name="model_set_as_patient", on_delete=models.CASCADE
+        to=get_user_model(),
+        related_name="model_set_as_patient",
+        on_delete=models.CASCADE,
     )
     user_account_doctor = models.ForeignKey(
-        to=UserAccount, related_name="model_set_as_doctor", on_delete=models.CASCADE
+        to=get_user_model(),
+        related_name="model_set_as_doctor",
+        on_delete=models.CASCADE,
     )
 
     class Meta:
@@ -80,7 +84,7 @@ class Prescription(ModelLinksUsersPatientDoctor):
 
 class PrescriptionHasInteraction(CommonModel, ModelHasContent):
     in_prescription = models.ForeignKey(to=Prescription, on_delete=models.CASCADE)
-    from_user_account = models.ForeignKey(to=UserAccount, on_delete=models.CASCADE)
+    from_user_account = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     is_from_doctor = models.BooleanField()
 
     class Meta:
