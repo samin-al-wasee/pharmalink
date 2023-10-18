@@ -8,7 +8,7 @@ from rest_framework.validators import ValidationError
 from accounts.models import UserAccount
 from accounts.serializers import UserAccountSerializer
 from common.serializers import AddressSerializer
-from common.utils import replace_nested_dict_with_objects, remove_blank_or_null
+from common.utils import remove_blank_or_null, replace_nested_dict_with_objects
 
 from .models import Organization, OrganizationHasUserWithRole
 

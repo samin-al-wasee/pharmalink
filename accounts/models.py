@@ -40,7 +40,7 @@ class UserAccount(
     )
     name = models.CharField(
         _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True
-    ) # Possible REFACTOR
+    )  # Possible REFACTOR
     date_of_birth = models.DateField(
         verbose_name=_("date of birth"), blank=True, null=True
     )

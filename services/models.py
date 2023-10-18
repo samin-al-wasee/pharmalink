@@ -1,11 +1,11 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from common.models import CommonModel
 from accounts.models import UserAccount
-from organizations.models import Organization
-from medicines.models import MedicineBrand
 from common.constants import RATINGS
+from common.models import CommonModel
+from medicines.models import MedicineBrand
+from organizations.models import Organization
 
 
 # Create your models here.
@@ -86,16 +86,20 @@ class PrescriptionHasInteraction(CommonModel, ModelHasContent):
     class Meta:
         abstract = True
 
+
 class PrescriptionFeedback(PrescriptionHasInteraction):
     rating = models.IntegerField(choices=RATINGS)
+
     class Meta:
         verbose_name = "prescription feedback"
         verbose_name_plural = "prescription feedbacks"
+
 
 class PrescriptionMessage(PrescriptionHasInteraction):
     class Meta:
         verbose_name = "prescription messages"
         verbose_name_plural = "prescription messages"
+
 
 class PrescriptionHasMedicine(models.Model):
     in_prescription = models.ForeignKey(to=Prescription, on_delete=models.CASCADE)

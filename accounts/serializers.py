@@ -4,9 +4,9 @@ from rest_framework.validators import ValidationError
 from common.constants import MODEL_CHARFIELD_MAX_LENGTH, MODEL_CHARFIELD_MIN_LENGTH
 from common.serializers import AddressSerializer
 from common.utils import (
-    replace_nested_dict_with_objects,
-    remove_blank_or_null,
     exclude_fields_from_data,
+    remove_blank_or_null,
+    replace_nested_dict_with_objects,
 )
 
 from .models import UserAccount

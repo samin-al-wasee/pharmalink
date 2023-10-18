@@ -14,7 +14,9 @@ from common.models import CommonModel, ModelHasAddress, ModelHasEmail
 
 # Create your models here.
 class Organization(CommonModel, ModelHasEmail, ModelHasAddress):
-    name = models.CharField(_("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH) # Should be UNIQUE
+    name = models.CharField(
+        _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH
+    )  # Should be UNIQUE
     information = models.TextField(
         verbose_name=_("organization information"), default="No information available."
     )
@@ -50,5 +52,5 @@ class OrganizationHasUserWithRole(models.Model):
         verbose_name_plural = _("organizations have users with roles")
         unique_together = ["organization", "user_account"]
 
-    def __str__(self) -> str: # Needs REFACTOR
+    def __str__(self) -> str:  # Needs REFACTOR
         return f"{str(self.user_account)}({self.role}) @ {self.organization.name}"

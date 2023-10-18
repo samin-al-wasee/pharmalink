@@ -1,11 +1,12 @@
 from django.test import TestCase
+
+from ..models import Address
+from ..serializers import AddressSerializer
 from ..utils import (
+    _get_nested_object_deserialized,
     exclude_fields_from_data,
     replace_nested_dict_with_objects,
-    _get_nested_object_deserialized,
 )
-from ..serializers import AddressSerializer
-from ..models import Address
 
 
 class UtilTests(TestCase):

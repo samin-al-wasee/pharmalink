@@ -23,11 +23,7 @@ class ModelHasNameAndSlug(models.Model):
         abstract = True
 
     def save(
-        self,
-        force_insert=False,
-        force_update=False,
-        using=None,
-        update_fields=None
+        self, force_insert=False, force_update=False, using=None, update_fields=None
     ) -> None:
         if not self.slug:
             self.slug = slugify(self.name)
