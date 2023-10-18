@@ -82,3 +82,23 @@ DOSAGE_FORMS = [
     (OINTMENT, "Ointment"),
     (INJECTION, "Injection"),
 ]
+
+
+"""
+Constants and choices for Feedback model
+"""
+
+ZERO = 0
+ONE = 1
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+
+RATINGS = [
+    (ONE, "1 Star"),
+    (TWO, "2 Stars"),
+    (THREE, "3 Stars"),
+    (FOUR, "4 Stars"),
+    (FIVE, "5 Stars"),
+]
