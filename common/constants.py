@@ -1,8 +1,8 @@
 """
 Generic model-related constants
 """
-MODEL_CHARFIELD_MIN_LENGTH = 8
-MODEL_CHARFIELD_MAX_LENGTH = 128
+MIN_LENGTH = 8
+MAX_LENGTH = 128
 
 """
 Constants and choices for UserAccount model
@@ -42,14 +42,14 @@ BLOOD_GROUPS = [
 """
 Constants and choices for Organization model
 """
-ORGANIZATION_IS_ACTIVE = "A"
-ORGANIZATION_IS_INACTIVE = "I"
-ORGANIZATION_STATUS_UNKNOWN = "U"
+ACTIVE = "A"
+INACTIVE = "I"
+STATUS_UNKNOWN = "U"
 
-ORGANIZATION_STATUS = [
-    (ORGANIZATION_IS_ACTIVE, "This organization is currently active."),
-    (ORGANIZATION_IS_INACTIVE, "This organization is currently inactive."),
-    (ORGANIZATION_STATUS_UNKNOWN, "No information about this organization's status."),
+ORGANIZATION_STATUSES = [
+    (ACTIVE, "This organization is currently active."),
+    (INACTIVE, "This organization is currently inactive."),
+    (STATUS_UNKNOWN, "No information about this organization's status."),
 ]
 
 """
@@ -60,7 +60,7 @@ STAFF = "S"
 DOCTOR = "D"
 PATIENT = "P"
 
-USER_ROLES_IN_ORGANIZATION = [
+USER_ROLES = [
     (STAFF, "Is a staff. E.g. Wardboy, Nurse etc."),
     (DOCTOR, "Is a registered doctor."),
     (PATIENT, "Is a patient."),

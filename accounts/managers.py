@@ -4,10 +4,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import UserManager
 
-from common.models import Address
 
-
-class UserAccountManager(UserManager):
+class UserManager_(UserManager):
     def create_user(
         self,
         username: str,
@@ -31,8 +29,8 @@ class UserAccountManager(UserManager):
         Only callable through the management command "createsuperuser" by default.
         """
 
-        UserModel = get_user_model()
-        superuser = UserModel(
+        user_model = get_user_model()
+        superuser = user_model(
             username="superuser",
             email=email,
             password=make_password(password),

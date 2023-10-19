@@ -11,17 +11,15 @@ from .models import Organization
 class IsOrganizationOwner(BasePermission):
     def __init__(self) -> None:
         super().__init__()
-        self.user_account = None
+        self.user = None
         self.organization = None
 
-    def get_user_account_and_organization(
+    def get_user_and_organization(
         self, request: Request, view, obj=None
     ) -> (
         tuple
     ):  # Needs REFACTOR (Extra conditionals not needed, qurysets are lazily evaluated)
-        self.user_account: get_user_model() = (
-            request.user if self.user_account is None else self.user_account
-        )
+        self.user: get_user_model() = request.user if self.user is None else self.user
         try:
             self.organization: Organization = (
                 Organization.objects.select_related().get(
@@ -33,22 +31,19 @@ class IsOrganizationOwner(BasePermission):
         except Organization.DoesNotExist:
             raise NotFound("Organization does not exist.")
 
-        return self.user_account, self.organization
+        return self.user, self.organization
 
     def has_permission(self, request: Request, view):
-        user_account, organization = self.get_user_account_and_organization(
+        user, organization = self.get_user_and_organization(
             request=request, view=view
         )
-        return (
-            user_account.is_authenticated
-            and organization.owner_user_account.id == user_account.id
-        )
+        return user.is_authenticated and organization.owner.id == user.id
 
     def has_object_permission(self, request: Request, view, obj: Organization | Any):
-        user_account, organization = self.get_user_account_and_organization(
+        user, organization = self.get_user_and_organization(
             request=request, view=view, obj=obj
         )
         if type(obj) is Organization:
-            return obj.owner_user_account.id == user_account.id
+            return obj.owner.id == user.id
         else:
-            return organization.owner_user_account.id == user_account.id
+            return organization.owner.id == user.id

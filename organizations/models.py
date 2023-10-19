@@ -3,33 +3,35 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from common.constants import (
-    MODEL_CHARFIELD_MAX_LENGTH,
-    ORGANIZATION_STATUS,
-    ORGANIZATION_STATUS_UNKNOWN,
+    MAX_LENGTH,
+    ORGANIZATION_STATUSES,
+    STATUS_UNKNOWN,
     OTHER,
-    USER_ROLES_IN_ORGANIZATION,
+    USER_ROLES,
 )
-from common.models import CommonModel, ModelHasAddress, ModelHasEmail
+from common.models import (
+    ModelHasRandomID,
+    ModelHasAddress,
+    ModelHasEmail,
+    ModelHasUniqueName,
+)
 
 
 # Create your models here.
-class Organization(CommonModel, ModelHasEmail, ModelHasAddress):
-    name = models.CharField(
-        _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH
-    )  # Should be UNIQUE
+class Organization(
+    ModelHasRandomID, ModelHasUniqueName, ModelHasEmail, ModelHasAddress
+):
     information = models.TextField(
         verbose_name=_("organization information"), default="No information available."
     )
 
     status = models.CharField(
         verbose_name=_("organization status"),
-        max_length=MODEL_CHARFIELD_MAX_LENGTH,
-        choices=ORGANIZATION_STATUS,
-        default=ORGANIZATION_STATUS_UNKNOWN,
+        max_length=MAX_LENGTH,
+        choices=ORGANIZATION_STATUSES,
+        default=STATUS_UNKNOWN,
     )
-    owner_user_account = models.ForeignKey(
-        to=get_user_model(), on_delete=models.PROTECT
-    )
+    owner = models.ForeignKey(to=get_user_model(), on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = _("organization")
@@ -39,20 +41,26 @@ class Organization(CommonModel, ModelHasEmail, ModelHasAddress):
         return f"{self.name}"
 
 
-class OrganizationHasUserWithRole(models.Model):
+class ModelLinksUserOrganization(models.Model):
+    user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE)
-    user_account = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+
+class OrganizationHasUserWithRole(ModelLinksUserOrganization):
     role = models.CharField(
         verbose_name=_("user's role"),
-        max_length=MODEL_CHARFIELD_MAX_LENGTH,
-        choices=USER_ROLES_IN_ORGANIZATION,
+        max_length=MAX_LENGTH,
+        choices=USER_ROLES,
         default=OTHER,
     )
 
     class Meta:
-        verbose_name = _("organization has user with role")
-        verbose_name_plural = _("organizations have users with roles")
-        unique_together = ["organization", "user_account"]
+        verbose_name = _("user role")
+        verbose_name_plural = _("user roles")
+        unique_together = ["organization", "user"]
 
     def __str__(self) -> str:  # Needs REFACTOR
-        return f"{str(self.user_account)}({self.role}) @ {self.organization.name}"
+        return f"{str(self.user)}({self.role}) @ {self.organization.name}"

@@ -1,23 +1,16 @@
 from collections.abc import Iterable
-
 from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
-from common.constants import DOSAGE_FORMS, MODEL_CHARFIELD_MAX_LENGTH
+from common.constants import DOSAGE_FORMS, MAX_LENGTH
 from organizations.models import Organization
+from common.models import ModelHasUniqueName
 
 
 # Create your models here.
-class ModelHasNameAndSlug(models.Model):
-    name = models.CharField(
-        verbose_name=_("name"),
-        max_length=MODEL_CHARFIELD_MAX_LENGTH,
-        unique=True,
-    )
-    slug = models.SlugField(
-        verbose_name=_("slug generated from name"), unique=True, editable=False
-    )
+class ModelHasNameToSlug(ModelHasUniqueName):
+    slug = models.SlugField(verbose_name=_("slug"), unique=True, editable=False)
 
     class Meta:
         abstract = True
@@ -31,21 +24,21 @@ class ModelHasNameAndSlug(models.Model):
 
 
 class MedicineGeneric(
-    ModelHasNameAndSlug
+    ModelHasNameToSlug
 ):  # Needs more research about model fields and REFACTOR
     pharmacology = models.TextField(
-        verbose_name=_("medicine generic pharmacology"), default="Not available."
+        verbose_name=_("pharmacology"), default="Not available."
     )
     indications = models.TextField(
-        verbose_name=_("medicine generic indications"),
+        verbose_name=_("indications"),
         default="No known indications.",
     )
     interactions = models.TextField(
-        verbose_name=_("medicine generic interactions"),
+        verbose_name=_("interactions"),
         default="No known interactions.",
     )
     side_effects = models.TextField(
-        verbose_name=_("medicine generic side effects"),
+        verbose_name=_("side effects"),
         default="No known side effects.",
     )
 
@@ -57,9 +50,9 @@ class MedicineGeneric(
         return self.name
 
 
-class MedicineBrand(ModelHasNameAndSlug):
-    owner_organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE)
-    medicine_generic = models.ForeignKey(to=MedicineGeneric, on_delete=models.CASCADE)
+class MedicineBrand(ModelHasNameToSlug):
+    manufacturer = models.ForeignKey(to=Organization, on_delete=models.CASCADE)
+    generic = models.ForeignKey(to=MedicineGeneric, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("medicine brands")
@@ -70,22 +63,22 @@ class MedicineBrand(ModelHasNameAndSlug):
 
 
 class MedicineBrandHasDosageFormWithInfo(models.Model):
-    medicine_brand = models.ForeignKey(to=MedicineBrand, on_delete=models.CASCADE)
+    brand = models.ForeignKey(to=MedicineBrand, on_delete=models.CASCADE)
     dosage_form = models.CharField(
-        verbose_name=_("medicine brand dosage form"),
-        max_length=MODEL_CHARFIELD_MAX_LENGTH,
+        verbose_name=_("dosage form"),
+        max_length=MAX_LENGTH,
         choices=DOSAGE_FORMS,
     )
-    dosage_instructions = models.TextField(
-        verbose_name=_("medicine brand dosage instructions"),
+    instructions = models.TextField(
+        verbose_name=_("dosage instructions"),
         default="As prescribed by the doctor.",
     )
-    unit_price = models.IntegerField(_("unit price in bdt"), default=-1)
+    unit_price = models.IntegerField(_("unit price"), default=-1)
 
     class Meta:
-        verbose_name = _("medicine brand has dosage form with info")
-        verbose_name_plural = _("medicine brands have dosage forms with info")
-        unique_together = ["medicine_brand", "dosage_form"]
+        verbose_name = _("dosage form")
+        verbose_name_plural = _("dosage forms")
+        unique_together = ["brand", "dosage_form"]
 
     def __str__(self):
-        return f"{str(self.medicine_brand)} | {self.dosage_form}"
+        return f"{str(self.brand)} | {self.dosage_form}"

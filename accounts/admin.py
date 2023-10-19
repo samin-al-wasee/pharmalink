@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Register your models here.
 @admin.register(get_user_model())
-class UserAccountAdmin(UserAdmin):
+class UserAdmin_(UserAdmin):
     fieldsets = (
         (_("Credentials"), {"fields": ("email", "password")}),
         (

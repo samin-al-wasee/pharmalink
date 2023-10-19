@@ -2,16 +2,16 @@ from django.contrib.auth import get_user_model
 from rest_framework.serializers import CharField, ModelSerializer
 from rest_framework.validators import ValidationError
 
-from common.constants import MODEL_CHARFIELD_MAX_LENGTH, MODEL_CHARFIELD_MIN_LENGTH
+from common.constants import MAX_LENGTH, MIN_LENGTH
 from common.serializers import AddressSerializer
 from common.utils import (
-    exclude_fields_from_data,
+    exclude_fields,
     remove_blank_or_null,
-    replace_nested_dict_with_objects,
+    create_nested_objects,
 )
 
 
-class UserAccountSerializer(ModelSerializer):
+class UserSerializer(ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = (
@@ -36,8 +36,8 @@ class UserAccountSerializer(ModelSerializer):
         extra_kwargs = {"password": {"write_only": True}}
 
     repeated_password = CharField(
-        min_length=MODEL_CHARFIELD_MIN_LENGTH,
-        max_length=MODEL_CHARFIELD_MAX_LENGTH,
+        min_length=MIN_LENGTH,
+        max_length=MAX_LENGTH,
         write_only=True,
     )
     address = AddressSerializer(allow_null=True, required=False)
@@ -70,15 +70,15 @@ class UserAccountSerializer(ModelSerializer):
         - Otherwise create a new address object and save
         - Finally proceed to create the actual user object
         """
-        fields_to_exclude = ("repeated_password",)
-        validated_data_without_unnecessary_fields = exclude_fields_from_data(
-            data=validated_data, fields=fields_to_exclude
+        to_exclude = ("repeated_password",)
+        validated_data = exclude_fields(
+            data=validated_data, fields=to_exclude
         )
-        fields_to_convert = ("address",)
+        to_convert = ("address",)
         serializer_classes = (AddressSerializer,)
-        validated_data_replaced_final = replace_nested_dict_with_objects(
-            data=validated_data_without_unnecessary_fields,
-            fields=fields_to_convert,
+        validated_data_final = create_nested_objects(
+            data=validated_data,
+            fields=to_convert,
             serializer_classes=serializer_classes,
         )
-        return super().create(validated_data_replaced_final)
+        return super().create(validated_data_final)

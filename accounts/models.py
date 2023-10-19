@@ -1,5 +1,3 @@
-from typing import Any
-
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.validators import ASCIIUsernameValidator
@@ -10,37 +8,46 @@ from django.utils.translation import gettext_lazy as _
 from common.constants import (
     BLOOD_GROUPS,
     GENDERS,
-    MODEL_CHARFIELD_MAX_LENGTH,
-    MODEL_CHARFIELD_MIN_LENGTH,
+    MAX_LENGTH,
+    MIN_LENGTH,
     UNKNOWN,
 )
-from common.models import CommonModel, ModelHasAddress, ModelHasEmail
+from common.models import (
+    ModelHasRandomID,
+    ModelHasAddress,
+    ModelHasEmail,
+)
 
-from .managers import UserAccountManager
+from .managers import UserManager_
 
 
 # Create your models here.
-class UserAccount(
-    AbstractBaseUser, PermissionsMixin, CommonModel, ModelHasEmail, ModelHasAddress
+class User(
+    AbstractBaseUser,
+    PermissionsMixin,
+    ModelHasRandomID,
+    ModelHasEmail,
+    ModelHasAddress,
 ):
     username = models.CharField(
         verbose_name=_("username"),
-        max_length=MODEL_CHARFIELD_MAX_LENGTH,
+        max_length=MAX_LENGTH,
         unique=True,
         help_text=_(
             "Required. 128 characters or fewer. Letters, digits and @/./+/-/_ only."
         ),
         validators=[
             ASCIIUsernameValidator(),
-            MinLengthValidator(MODEL_CHARFIELD_MIN_LENGTH),
+            MinLengthValidator(MIN_LENGTH),
         ],
         error_messages={
             "unique": _("A user with that username already exists."),
         },
     )
     name = models.CharField(
-        _("name"), max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True
-    )  # Possible REFACTOR
+        _("name"),
+        max_length=MAX_LENGTH,
+    )
     date_of_birth = models.DateField(
         verbose_name=_("date of birth"), blank=True, null=True
     )
@@ -62,24 +69,24 @@ class UserAccount(
     weight_kg = models.IntegerField(_("weight in kilograms"), default=-1)
     blood_group = models.CharField(
         verbose_name=_("blood group"),
-        max_length=MODEL_CHARFIELD_MAX_LENGTH,
+        max_length=MAX_LENGTH,
         choices=BLOOD_GROUPS,
         default=UNKNOWN,
     )
     gender = models.CharField(
         verbose_name=_("gender"),
-        max_length=MODEL_CHARFIELD_MAX_LENGTH,
+        max_length=MAX_LENGTH,
         choices=GENDERS,
         default=UNKNOWN,
     )
-    objects: UserAccountManager = UserAccountManager()
+    objects: UserManager_ = UserManager_()
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     class Meta:
-        verbose_name = _("user account")
-        verbose_name_plural = _("user accounts")
+        verbose_name = _("user")
+        verbose_name_plural = _("users")
 
     @property
     def is_staff(self):

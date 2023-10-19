@@ -2,19 +2,30 @@ from uuid import uuid4
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import Country, CountryField
+from django.contrib.auth import get_user_model
 
-from .constants import *
+from .constants import MAX_LENGTH
 
 
 # Create your models here.
-class CommonModel(models.Model):
+class ModelHasRandomID(models.Model):
     """An abstract model for common information that multiple models can inherit such as UUID, creation time."""
 
     uuid = models.UUIDField(default=uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+
+class ModelHasUniqueName(models.Model):
+    name = models.CharField(
+        _("name"),
+        max_length=MAX_LENGTH,
+        unique=True,
+    )
 
     class Meta:
         abstract = True
@@ -43,13 +54,13 @@ class Address(models.Model):
     Each address, as a whole including all the fields, should be unique.
     """
 
-    unit_no = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
-    street_no = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
-    line_1 = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
-    line_2 = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
-    city = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH)
-    region = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH, blank=True)
-    postal_code = models.CharField(max_length=MODEL_CHARFIELD_MAX_LENGTH)
+    unit_no = models.CharField(max_length=MAX_LENGTH, blank=True)
+    street_no = models.CharField(max_length=MAX_LENGTH, blank=True)
+    line_1 = models.CharField(max_length=MAX_LENGTH, blank=True)
+    line_2 = models.CharField(max_length=MAX_LENGTH, blank=True)
+    city = models.CharField(max_length=MAX_LENGTH)
+    region = models.CharField(max_length=MAX_LENGTH, blank=True)
+    postal_code = models.CharField(max_length=MAX_LENGTH)
     country: Country = CountryField(blank_label=_("Select country"))
 
     class Meta:

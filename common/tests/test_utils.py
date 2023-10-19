@@ -3,9 +3,9 @@ from django.test import TestCase
 from ..models import Address
 from ..serializers import AddressSerializer
 from ..utils import (
-    _get_nested_object_deserialized,
-    exclude_fields_from_data,
-    replace_nested_dict_with_objects,
+    _get_object,
+    exclude_fields,
+    create_nested_objects,
 )
 
 
@@ -49,7 +49,7 @@ class UtilTests(TestCase):
 
     def test_exclude_fields_from_data(self):
         fields = ("repeated_password",)
-        data = exclude_fields_from_data(data=self.data, fields=fields)
+        data = exclude_fields(data=self.data, fields=fields)
         try:
             repeated_password = data["repeated_password"]
         except KeyError:
@@ -58,7 +58,7 @@ class UtilTests(TestCase):
     def test_replace_nested_dict_with_objects(self):
         fields = ("address",)
         serializer_classes = (AddressSerializer,)
-        data = replace_nested_dict_with_objects(
+        data = create_nested_objects(
             data=self.data, fields=fields, serializer_classes=serializer_classes
         )
         self.assertIsInstance(data.get("address"), list)

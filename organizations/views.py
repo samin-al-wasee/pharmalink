@@ -7,7 +7,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 
-from common.constants import ORGANIZATION_IS_ACTIVE, ORGANIZATION_IS_INACTIVE
+from common.constants import ACTIVE, INACTIVE
 
 from .models import Organization, OrganizationHasUserWithRole
 from .permissions import IsOrganizationOwner
@@ -21,25 +21,23 @@ from .serializers import (
 
 
 # Create your views here.
-class OrganizationListViewOnlyOwned(ListAPIView):  # DONE
+class OrganizationListOnlyOwned(ListAPIView):  # DONE
     serializer_class = OrganizationSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        authenticated_user_account: get_user_model() = self.request.user
-        queryset = Organization.objects.select_related().filter(
-            owner_user_account_id=authenticated_user_account.id
-        )
+        auth_user: get_user_model() = self.request.user
+        queryset = Organization.objects.select_related().filter(owner_id=auth_user.id)
         return queryset
 
 
-class OrganizationListCreateView(ListCreateAPIView):  # DONE
-    queryset = Organization.objects.filter(status=ORGANIZATION_IS_ACTIVE)
+class OrganizationListCreate(ListCreateAPIView):  # DONE
+    queryset = Organization.objects.filter(status=ACTIVE)
     serializer_class = OrganizationSerializer
     permission_classes = [IsAuthenticated]
 
 
-class OrganizationDetailsUpdateView(RetrieveUpdateDestroyAPIView):  # DONE
+class OrganizationDetailsUpdate(RetrieveUpdateDestroyAPIView):  # DONE
     queryset = Organization.objects.filter()
     serializer_class = OrganizationSerializer
     permission_classes = [IsOrganizationOwner]
@@ -47,36 +45,36 @@ class OrganizationDetailsUpdateView(RetrieveUpdateDestroyAPIView):  # DONE
     lookup_url_kwarg = "org_uuid"
 
     def perform_destroy(self, instance: Organization):  # Possible REFACTOR
-        instance.status = ORGANIZATION_IS_INACTIVE
+        instance.status = INACTIVE
         instance.save()
 
 
-class OrganizationUserCreateViewForUser(CreateAPIView):  # DONE
+class OrganizationUserCreateForUser(CreateAPIView):  # DONE
     serializer_class = OrganizationUserSerializerForUser
     permission_classes = [IsAuthenticated]
 
 
-class OrganizationUserListCreateViewForOwner(ListCreateAPIView):  # DONE
+class OrganizationUserListCreateForOwner(ListCreateAPIView):  # DONE
     serializer_class = OrganizationUserSeralizerForOwner
     permission_classes = [IsOrganizationOwner]
 
     def get_queryset(self):
-        organization_uuid = self.request.parser_context.get("kwargs").get("org_uuid")
+        org_uuid = self.request.parser_context.get("kwargs").get("org_uuid")
         queryset = OrganizationHasUserWithRole.objects.select_related().filter(
-            organization__uuid=organization_uuid
+            organization__uuid=org_uuid
         )
         return queryset
 
 
-class OrganizationUserDetailsUpdateDeleteView(RetrieveUpdateDestroyAPIView):  # DONE
+class OrganizationUserDetailsUpdateDelete(RetrieveUpdateDestroyAPIView):  # DONE
     permission_classes = [IsOrganizationOwner]
-    lookup_field = "user_account__uuid"
+    lookup_field = "user__uuid"
     lookup_url_kwarg = "user_uuid"
 
     def get_queryset(self):
-        organization_uuid = self.request.parser_context.get("kwargs").get("org_uuid")
+        org_uuid = self.request.parser_context.get("kwargs").get("org_uuid")
         queryset = OrganizationHasUserWithRole.objects.select_related().filter(
-            organization__uuid=organization_uuid
+            organization__uuid=org_uuid
         )
         return queryset
 

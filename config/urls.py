@@ -19,7 +19,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
-from organizations.views import OrganizationListCreateView
+from organizations.views import OrganizationListCreate
 
 urlpatterns = [
     path("admin/", admin.site.urls),
