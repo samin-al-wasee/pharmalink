@@ -23,9 +23,12 @@ from organizations.views import OrganizationListCreate
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/v1/", include("common.urls")),
-    path("api/v1/accounts/", include("accounts.urls")),
-    path("api/v1/organizations/", include("organizations.urls")),
+    path("api/v1", include("common.urls")),
+    path("api/v1", include("medicines.urls.root")),
+    path("api/v1", include("services.urls.messages")),
+    path("api/v1", include("services.urls.prescriptions")),
+    path("api/v1", include("accounts.urls")),
+    path("api/v1", include("organizations.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
