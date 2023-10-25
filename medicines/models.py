@@ -1,11 +1,10 @@
-from collections.abc import Iterable
 from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from common.constants import DOSAGE_FORMS, MAX_LENGTH
-from organizations.models import Organization
 from common.models import ModelHasUniqueName
+from organizations.models import Organization
 
 
 # Create your models here.
@@ -55,7 +54,7 @@ class MedicineBrand(ModelHasNameToSlug):
     generic = models.ForeignKey(to=MedicineGeneric, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = _("medicine brands")
+        verbose_name = _("medicine brand")
         verbose_name_plural = _("medicine brands")
 
     def __str__(self) -> str:
