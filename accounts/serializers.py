@@ -4,11 +4,8 @@ from rest_framework.validators import ValidationError
 
 from common.constants import MAX_LENGTH, MIN_LENGTH
 from common.serializers import AddressSerializer
-from common.utils import (
-    exclude_fields,
-    remove_blank_or_null,
-    create_nested_objects,
-)
+from common.utils import (create_nested_objects, extract_fields,
+                          remove_blank_or_null)
 
 
 class UserSerializer(ModelSerializer):
@@ -71,9 +68,7 @@ class UserSerializer(ModelSerializer):
         - Finally proceed to create the actual user object
         """
         to_exclude = ("repeated_password",)
-        validated_data = exclude_fields(
-            data=validated_data, fields=to_exclude
-        )
+        validated_data = extract_fields(data=validated_data, fields=to_exclude)[0]
         to_convert = ("address",)
         serializer_classes = (AddressSerializer,)
         validated_data_final = create_nested_objects(

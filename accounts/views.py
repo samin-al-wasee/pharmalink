@@ -13,7 +13,7 @@ from .serializers import UserSerializer
 
 # Create your views here.
 class UserCreate(CreateAPIView):
-    queryset = get_user_model().objects.all()
+    queryset = get_user_model().objects.filter()
     serializer_class = UserSerializer
     authentication_classes = [JWTAuthentication, SessionAuthentication]
     permission_classes = [IsNotAuthenticated]
