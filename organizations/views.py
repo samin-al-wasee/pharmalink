@@ -1,27 +1,25 @@
 from django.contrib.auth import get_user_model
-from rest_framework.generics import (
-    CreateAPIView,
-    ListAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
+from rest_framework.generics import (CreateAPIView, ListAPIView,
+                                     ListCreateAPIView,
+                                     RetrieveUpdateDestroyAPIView)
 from rest_framework.permissions import IsAuthenticated
 
 from common.constants import ACTIVE, INACTIVE
 
+from .mixins import OwnerPermissionMixin
 from .models import Organization, OrganizationHasUserWithRole
-from .permissions import IsOrganizationOwner
-from .serializers import (
-    OrganizationSerializer,
-    OrganizationUserBaseSerializer,
-    OrganizationUserSeralizerForOwner,
-    OrganizationUserSerializer,
-    OrganizationUserSerializerForUser,
-)
+from .serializers import (OrganizationSerializer,
+                          OrganizationUserBaseSerializer,
+                          OrganizationUserSerializerForOwner,
+                          OrganizationUserSerializerForUser)
 
 
 # Create your views here.
-class OrganizationListOnlyOwned(ListAPIView):  # DONE
+class OrganizationListOnlyOwned(ListAPIView):
+    """
+    Return only owned organizations by authenticated user regardless of status.
+    """
+
     serializer_class = OrganizationSerializer
     permission_classes = [IsAuthenticated]
 
@@ -31,16 +29,20 @@ class OrganizationListOnlyOwned(ListAPIView):  # DONE
         return queryset
 
 
-class OrganizationListCreate(ListCreateAPIView):  # DONE
+class OrganizationListCreate(ListCreateAPIView):
+    """
+    Return all active organizations regardless of owner.
+    Create organization for authenticated user.
+    """
+
     queryset = Organization.objects.filter(status=ACTIVE)
     serializer_class = OrganizationSerializer
     permission_classes = [IsAuthenticated]
 
 
-class OrganizationDetailsUpdate(RetrieveUpdateDestroyAPIView):  # DONE
+class OrganizationDetailsUpdate(OwnerPermissionMixin, RetrieveUpdateDestroyAPIView):
     queryset = Organization.objects.filter()
     serializer_class = OrganizationSerializer
-    permission_classes = [IsOrganizationOwner]
     lookup_field = "uuid"
     lookup_url_kwarg = "org_uuid"
 
@@ -49,14 +51,13 @@ class OrganizationDetailsUpdate(RetrieveUpdateDestroyAPIView):  # DONE
         instance.save()
 
 
-class OrganizationUserCreateForUser(CreateAPIView):  # DONE
+class OrganizationUserCreateForUser(CreateAPIView):
     serializer_class = OrganizationUserSerializerForUser
     permission_classes = [IsAuthenticated]
 
 
-class OrganizationUserListCreateForOwner(ListCreateAPIView):  # DONE
-    serializer_class = OrganizationUserSeralizerForOwner
-    permission_classes = [IsOrganizationOwner]
+class OrganizationUserListCreateForOwner(OwnerPermissionMixin, ListCreateAPIView):
+    serializer_class = OrganizationUserSerializerForOwner
 
     def get_queryset(self):
         org_uuid = self.request.parser_context.get("kwargs").get("org_uuid")
@@ -66,20 +67,16 @@ class OrganizationUserListCreateForOwner(ListCreateAPIView):  # DONE
         return queryset
 
 
-class OrganizationUserDetailsUpdateDelete(RetrieveUpdateDestroyAPIView):  # DONE
-    permission_classes = [IsOrganizationOwner]
+class OrganizationUserDetailsUpdateDelete(
+    OwnerPermissionMixin, RetrieveUpdateDestroyAPIView
+):
+    serializer_class = OrganizationUserBaseSerializer
     lookup_field = "user__uuid"
     lookup_url_kwarg = "user_uuid"
 
     def get_queryset(self):
-        org_uuid = self.request.parser_context.get("kwargs").get("org_uuid")
+        org_uuid = self.kwargs.get("org_uuid")
         queryset = OrganizationHasUserWithRole.objects.select_related().filter(
             organization__uuid=org_uuid
         )
         return queryset
-
-    def get_serializer_class(self):
-        if self.request.method == "PUT" or self.request.method == "PATCH":
-            return OrganizationUserBaseSerializer
-        else:
-            return OrganizationUserSerializer
