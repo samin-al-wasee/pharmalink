@@ -19,6 +19,3 @@ class AddressTests(TestCase):
         self.assertEquals(self.address.region, "")
         self.assertEquals(self.address.postal_code, "1212")
         self.assertEquals(self.address.country, "BD")
-
-    def test_create_without_required_fields_fail(self):
-        pass

@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import Country, CountryField
-from django.contrib.auth import get_user_model
 
 from .constants import MAX_LENGTH
 
@@ -67,16 +66,6 @@ class Address(models.Model):
         verbose_name = _("address")
         verbose_name_plural = _("addresses")
         ordering = ["country"]
-        unique_together = [
-            "unit_no",
-            "street_no",
-            "line_1",
-            "line_2",
-            "city",
-            "region",
-            "postal_code",
-            "country",
-        ]
 
     def clean(self) -> None:
         """

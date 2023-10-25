@@ -2,11 +2,7 @@ from django.test import TestCase
 
 from ..models import Address
 from ..serializers import AddressSerializer
-from ..utils import (
-    _get_object,
-    exclude_fields,
-    create_nested_objects,
-)
+from ..utils import _get_object, create_nested_objects, extract_fields
 
 
 class UtilTests(TestCase):
@@ -49,11 +45,9 @@ class UtilTests(TestCase):
 
     def test_exclude_fields_from_data(self):
         fields = ("repeated_password",)
-        data = exclude_fields(data=self.data, fields=fields)
-        try:
-            repeated_password = data["repeated_password"]
-        except KeyError:
-            self.assertTrue(True)
+        data = extract_fields(data=self.data, fields=fields)[0]
+        repeated_password = data.get("repeated_password")
+        self.assertIsNone(repeated_password)
 
     def test_replace_nested_dict_with_objects(self):
         fields = ("address",)

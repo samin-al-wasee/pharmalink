@@ -2,18 +2,18 @@
 This module includs some utility functions used for various purposes in other apps, modules, classes or functions.
 """
 
+from collections import OrderedDict
 from typing import Any
 
-from django.http import QueryDict
+from django.http import Http404, QueryDict
+from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import NotFound
 from rest_framework.serializers import ModelSerializer
 
 
-def remove_blank_or_null(data: QueryDict | dict) -> QueryDict | dict:
+def remove_blank_or_null(data: QueryDict | dict) -> QueryDict:
     """
-    This functions removes the blank ("") or null (None) type values from the given QueryDict of data.
-
-    ARGS: data: QuerydDict | dict
-    RETURNS: cleaned_data: QueryDict
+    Remove the blank ("", []) or null (None) type values from given data.
     """
 
     nested_data = []
@@ -24,7 +24,7 @@ def remove_blank_or_null(data: QueryDict | dict) -> QueryDict | dict:
             nested_data.append((key, value))
             continue
 
-        if "." in key or (value != "" and value is not None):
+        if "." in key or value:
             clean_data[key] = value
 
     for name, dictionary in nested_data:
@@ -36,9 +36,20 @@ def remove_blank_or_null(data: QueryDict | dict) -> QueryDict | dict:
     return clean_data_
 
 
-def exclude_fields(data: dict, fields: tuple | list):
+def extract_fields(data: dict, fields: tuple | list):
+    """
+    Extract/remove specified fields from given data.
+    Return extracted fields if needed.
+    Return only remaining data after extraction by default.
+    """
     excluded = {field: data.pop(field, None) for field in fields}
-    return data
+    print(excluded)
+    return (data, excluded)
+
+
+def convert_to_dictionary(ordered_dict: OrderedDict) -> dict:
+    dictionary = {key: value for key, value in ordered_dict.items()}
+    return dictionary
 
 
 def create_nested_objects(
@@ -58,6 +69,64 @@ def create_nested_objects(
             )
 
     return data
+
+
+def replace_uuids_with_objects(
+    data: dict,
+    uuid_fields: list | tuple,
+    object_fields: list | tuple,
+    model_classes: list | tuple,
+) -> dict:
+    """
+    Retrieve objects using given uuids.
+    Insert objects to corresponding object fields.
+    Assume given data and uuids are valid.
+    """
+    for uuid_field, object_field, model_class in zip(
+        uuid_fields, object_fields, model_classes
+    ):
+        uuid = data.pop(uuid_field)
+        object_ = model_class.objects.get(uuid=uuid)
+        data[object_field] = object_
+
+    return data
+
+
+def replace_ids_with_uuid_slug(
+    instance: Any,
+    uuid_fields: list | tuple = None,
+    slug_fields: list | tuple = None,
+):
+    if uuid_fields:
+        new_representation = {
+            uuid_field: getattr(instance, uuid_field).uuid for uuid_field in uuid_fields
+        }
+    if slug_fields:
+        new_representation.update(
+            {
+                slug_field: getattr(instance, slug_field).slug
+                for slug_field in slug_fields
+            }
+        )
+    return new_representation
+
+
+def get_path_objects(
+    request_kwargs: dict, path_vars: list | tuple, model_classes: list | tuple
+) -> dict:
+    kwarg_objects = {}
+    for path_var, model_class in zip(path_vars, model_classes):
+        path_var_value = request_kwargs.get(path_var)
+        try:
+            try:
+                object_ = get_object_or_404(klass=model_class, uuid=path_var_value)
+            except ValueError or TypeError:
+                object_ = get_object_or_404(klass=model_class, slug=path_var_value)
+        except Http404:
+            raise NotFound(f"{model_class} does not exist.")
+        kwarg_objects[path_var] = object_
+
+    return kwarg_objects
 
 
 def _get_object(
