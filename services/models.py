@@ -4,8 +4,8 @@ from django.utils.translation import gettext_lazy as _
 
 from common.constants import RATINGS
 from common.models import ModelHasRandomID
-from organizations.models import ModelLinksUserOrganization
 from medicines.models import MedicineBrand
+from organizations.models import ModelLinksUserOrganization, Organization
 
 
 # Create your models here.
@@ -16,7 +16,7 @@ class ModelHasContent(ModelHasRandomID):
         abstract = True
 
 
-class FeedbackForOrganization(
+class FeedbackToOrganization(
     ModelHasContent, ModelLinksUserOrganization
 ):  # Possible REFACTOR
     rating = models.IntegerField(choices=RATINGS)
@@ -30,7 +30,7 @@ class FeedbackForOrganization(
 
 
 class MessageBetweenUserOrganization(ModelHasContent, ModelLinksUserOrganization):
-    from_user = models.BooleanField()
+    from_user = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "message"
@@ -43,6 +43,7 @@ class MessageBetweenUserOrganization(ModelHasContent, ModelLinksUserOrganization
 
 
 class Prescription(ModelHasRandomID):
+    organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE)
     patient = models.ForeignKey(
         to=get_user_model(),
         related_name="prescriptions_patient",
@@ -53,7 +54,7 @@ class Prescription(ModelHasRandomID):
         related_name="prescriptions_doctor",
         on_delete=models.CASCADE,
     )
-    done = models.BooleanField()
+    done = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "prescription"
