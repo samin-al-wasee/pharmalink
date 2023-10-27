@@ -4,8 +4,7 @@ from rest_framework.validators import ValidationError
 
 from common.constants import MAX_LENGTH, MIN_LENGTH
 from common.serializers import AddressSerializer
-from common.utils import (create_nested_objects, extract_fields,
-                          remove_blank_or_null)
+from common.utils import create_nested_objects, extract_fields, remove_blank_or_null
 
 
 class UserSerializer(ModelSerializer):
@@ -71,9 +70,9 @@ class UserSerializer(ModelSerializer):
         validated_data = extract_fields(data=validated_data, fields=to_exclude)[0]
         to_convert = ("address",)
         serializer_classes = (AddressSerializer,)
-        validated_data_final = create_nested_objects(
+        validated_data = create_nested_objects(
             data=validated_data,
             fields=to_convert,
             serializer_classes=serializer_classes,
         )
-        return super().create(validated_data_final)
+        return super().create(validated_data)

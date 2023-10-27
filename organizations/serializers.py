@@ -35,26 +35,26 @@ class OrganizationSerializer(ModelSerializer):
 
     def create(self, validated_data):  # Needs REFACTOR
         request: Request = self.context.get("request")
-        add_data = {"owner": request.user}
-        validated_data.update(add_data)
+        additional_data = {"owner": request.user}
+        validated_data.update(additional_data)
         nested_fields = ("address",)
         serializer_classes = (AddressSerializer,)
-        validated_data_final = create_nested_objects(
+        validated_data = create_nested_objects(
             data=validated_data,
             fields=nested_fields,
             serializer_classes=serializer_classes,
         )
-        return super().create(validated_data_final)
+        return super().create(validated_data)
 
     def update(self, instance, validated_data):  # Needs REFACTOR
         nested_fields = ("address",)
         serializer_classes = (AddressSerializer,)
-        validated_data_final = create_nested_objects(
+        validated_data = create_nested_objects(
             data=validated_data,
             fields=nested_fields,
             serializer_classes=serializer_classes,
         )
-        return super().update(instance, validated_data_final)
+        return super().update(instance, validated_data)
 
 
 class OrganizationUserBaseSerializer(ModelSerializer):
@@ -78,11 +78,11 @@ class OrganizationUserBaseSerializer(ModelSerializer):
         return super().is_valid(raise_exception=raise_exception)
 
     def update(self, instance, validated_data):
-        add_data = {
+        additional_data = {
             "organization": instance.organization,
             "user": self.instance.user,
         }
-        validated_data.update(add_data)
+        validated_data.update(additional_data)
         return super().update(instance, validated_data)
 
 
@@ -96,10 +96,12 @@ class OrganizationUserSerializerForOwner(OrganizationUserBaseSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-        org_uuid = request.parser_context.get("kwargs").get("org_uuid")
-        organization = Organization.objects.get(uuid=org_uuid)
-        add_data = {"organization": organization}
-        validated_data.update(add_data)
+        organization_uuid = request.parser_context.get("kwargs").get(
+            "organization_uuid"
+        )
+        organization = Organization.objects.get(uuid=organization_uuid)
+        additional_data = {"organization": organization}
+        validated_data.update(additional_data)
         try:
             return super().create(validated_data)
         except IntegrityError:
@@ -118,9 +120,9 @@ class OrganizationUserSerializerForUser(OrganizationUserBaseSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-        auth_user = request.user
-        add_data = {"user": auth_user}
-        validated_data.update(add_data)
+        authenticated_user = request.user
+        additional_data = {"user": authenticated_user}
+        validated_data.update(additional_data)
         try:
             return super().create(validated_data)
         except IntegrityError:

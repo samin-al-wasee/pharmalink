@@ -19,12 +19,12 @@ class UserCreate(CreateAPIView):
     permission_classes = [IsNotAuthenticated]
 
     def permission_denied(self, request: Request, message=None, code=None) -> None:
-        auth_user = request.user
-        if auth_user.is_staff:
+        authenticated_user = request.user
+        if authenticated_user.is_staff:
             raise PermissionDenied(
                 "Please visit the admin panel to register on behalf of new users."
             )
-        if auth_user.is_authenticated:
+        if authenticated_user.is_authenticated:
             raise PermissionDenied(
                 "You have already signed up and are currently logged in."
             )
@@ -37,6 +37,6 @@ class UserAuthDetail(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def retrieve(self, request, *args, **kwargs):
-        auth_user: get_user_model() = request.user
-        serializer: UserSerializer = self.get_serializer(auth_user)
+        authenticated_user: get_user_model() = request.user
+        serializer: UserSerializer = self.get_serializer(authenticated_user)
         return Response(serializer.data)

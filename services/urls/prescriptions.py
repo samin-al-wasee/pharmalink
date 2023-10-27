@@ -1,32 +1,37 @@
-from django.urls import include, path
+from django.urls import path
 
-from ..views import (PrescriptionChatListCreate, PrescriptionDetailsDelete,
-                     PrescriptionFeedbackCreate, PrescriptionListCreate,
-                     PrescriptionListForPatient, PrescriptionMarkAsDone)
+from ..views import (
+    PrescriptionChatListCreate,
+    PrescriptionDetailsDelete,
+    PrescriptionFeedbackCreate,
+    PrescriptionListCreate,
+    PrescriptionListForPatient,
+    PrescriptionMarkAsDone,
+)
 
 urlpatterns = [
     path(
-        "/organizations/<uuid:org_uuid>/services/prescriptions",
+        "/organizations/<uuid:organization_uuid>/services/prescriptions",
         PrescriptionListCreate.as_view(),
         name="prescription-list-create-doctor",
     ),
     path(
-        "/organizations/<uuid:org_uuid>/services/prescriptions/<uuid:presc_uuid>",
+        "/organizations/<uuid:organization_uuid>/services/prescriptions/<uuid:prescription_uuid>",
         PrescriptionDetailsDelete.as_view(),
         name="prescription-details-delete-doctor",
     ),
     path(
-        "/organizations/<uuid:org_uuid>/services/prescriptions/<uuid:presc_uuid>/mark-as-done",
+        "/organizations/<uuid:organization_uuid>/services/prescriptions/<uuid:prescription_uuid>/mark-as-done",
         PrescriptionMarkAsDone.as_view(),
         name="prescription-mark-as-done-doctor",
     ),
     path(
-        "/organizations/<uuid:org_uuid>/services/prescriptions/<uuid:presc_uuid>/feedbacks",
+        "/organizations/<uuid:organization_uuid>/services/prescriptions/<uuid:prescription_uuid>/feedbacks",
         PrescriptionFeedbackCreate.as_view(),
         name="prescription-feedback-for-doctor",
     ),
     path(
-        "/organizations/<uuid:org_uuid>/services/prescriptions/<uuid:presc_uuid>/chat",
+        "/organizations/<uuid:organization_uuid>/services/prescriptions/<uuid:prescription_uuid>/chat",
         PrescriptionChatListCreate.as_view(),
         name="prescription-chat-for-doctor",
     ),
@@ -36,22 +41,22 @@ urlpatterns = [
         name="prescription-list-patient",
     ),
     path(
-        "/accounts/me/prescriptions/<uuid:presc_uuid>",
+        "/accounts/me/prescriptions/<uuid:prescription_uuid>",
         PrescriptionDetailsDelete.as_view(),
         name="prescription-details-delete-patient",
     ),
     path(
-        "/accounts/me/prescriptions/<uuid:presc_uuid>/mark-as-done",
+        "/accounts/me/prescriptions/<uuid:prescription_uuid>/mark-as-done",
         PrescriptionMarkAsDone.as_view(),
         name="prescription-mark-as-done-patient",
     ),
     path(
-        "/accounts/me/prescriptions/<uuid:presc_uuid>/feedbacks",
+        "/accounts/me/prescriptions/<uuid:prescription_uuid>/feedbacks",
         PrescriptionFeedbackCreate.as_view(),
         name="prescription-feedback-for-patient",
     ),
     path(
-        "/accounts/me/prescriptions/<uuid:presc_uuid>/chat",
+        "/accounts/me/prescriptions/<uuid:prescription_uuid>/chat",
         PrescriptionChatListCreate.as_view(),
         name="prescription-chat-for-patient",
     ),

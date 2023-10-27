@@ -1,6 +1,9 @@
 from django.db.models import Q
-from rest_framework.generics import (ListAPIView, ListCreateAPIView,
-                                     RetrieveUpdateDestroyAPIView)
+from rest_framework.generics import (
+    ListAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 
@@ -18,8 +21,8 @@ class MedicineBrandListForUser(ListAPIView):
 
     def get_queryset(self):
         request: Request = self.request
-        query_params = request.query_params
-        if query_params:
+        query_parameters = request.query_parameters
+        if query_parameters:
             query = Q()
             query_param_mapper = {
                 "name": "name",
@@ -30,9 +33,9 @@ class MedicineBrandListForUser(ListAPIView):
                 "sideeffects": "generic__side_effects",
                 "manufacturer": "manufacturer__name",
             }
-            for param, keywords in query_params.items():
-                keywords = query_params.get(param).split("%")
-                field = query_param_mapper.get(param)
+            for parameter, keywords in query_parameters.items():
+                keywords = query_parameters.get(parameter).split("%")
+                field = query_param_mapper.get(parameter)
                 for word in keywords:
                     query |= Q(**{field + "__icontains": word})
             queryset = MedicineBrand.objects.select_related(
@@ -46,8 +49,8 @@ class MedicineBrandListCreateForOwner(OwnerPermissionMixin, ListCreateAPIView):
     serializer_class = MedicineBrandSerializer
 
     def get_queryset(self):
-        org_uuid = self.kwargs.get("org_uuid")
-        queryset = MedicineBrand.objects.filter(manufacturer__uuid=org_uuid)
+        organization_uuid = self.kwargs.get("organization_uuid")
+        queryset = MedicineBrand.objects.filter(manufacturer__uuid=organization_uuid)
         return queryset
 
 
@@ -56,12 +59,12 @@ class MedicineBrandDetailsUpdateDelete(
 ):
     serializer_class = MedicineBrandSerializer
     lookup_field = "slug"
-    lookup_url_kwarg = "med_slug"
+    lookup_url_kwarg = "medicine_slug"
 
     def get_queryset(self):
-        org_uuid = self.kwargs.get("org_uuid")
+        organization_uuid = self.kwargs.get("organization_uuid")
         queryset = MedicineBrand.objects.select_related().filter(
-            manufacturer__uuid=org_uuid
+            manufacturer__uuid=organization_uuid
         )
         return queryset
 
@@ -73,9 +76,9 @@ class MedicineGenericListForUser(ListAPIView):
 
     def get_queryset(self):
         request: Request = self.request
-        query_params = request.query_params
-        if query_params:
-            keywords = query_params.get("name").split("%")
+        query_parameters = request.query_parameters
+        if query_parameters:
+            keywords = query_parameters.get("name").split("%")
             query = Q()
             for word in keywords:
                 query |= Q(slug__icontains=word)

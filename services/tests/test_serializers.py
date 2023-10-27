@@ -8,8 +8,7 @@ from medicines.models import MedicineBrand, MedicineGeneric
 from organizations.models import Organization
 
 from ..models import Prescription
-from ..serializers import (PrescriptionHasMedicineSerializer,
-                           PrescriptionSerializer)
+from ..serializers import PrescriptionSerializer
 
 
 class PrescriptionMedicineSeralizerTests(TestCase):
@@ -92,7 +91,7 @@ class PrescriptionMedicineSeralizerTests(TestCase):
         )
         self.request_factory = APIRequestFactory()
         self.httprequest = self.request_factory.get("/prescriptions/")
-        self.parser_context = {"kwargs": {"org_uuid": self.org.uuid}}
+        self.parser_context = {"kwargs": {"organization_uuid": self.org.uuid}}
         self.request = Request(self.httprequest, parser_context=self.parser_context)
         self.request.user = self.doctor
 

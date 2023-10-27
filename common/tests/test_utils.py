@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from ..models import Address
 from ..serializers import AddressSerializer
-from ..utils import _get_object, create_nested_objects, extract_fields
+from ..utils import create_nested_objects, extract_fields
 
 
 class UtilTests(TestCase):

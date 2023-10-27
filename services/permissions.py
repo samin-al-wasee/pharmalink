@@ -50,5 +50,8 @@ class HasPrescriptionAccess(BasePermission):
         return True
 
     def has_object_permission(self, request, view, obj):
-        auth_user = request.user
-        return obj.doctor.id == auth_user.id or obj.patient.id == auth_user.id
+        authenticated_user = request.user
+        return (
+            obj.doctor.id == authenticated_user.id
+            or obj.patient.id == authenticated_user.id
+        )

@@ -2,16 +2,17 @@ from collections import OrderedDict
 
 from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
-from rest_framework.serializers import (ListField, ModelSerializer,
-                                        SerializerMethodField,
-                                        SlugRelatedField)
+from rest_framework.serializers import (
+    ListField,
+    ModelSerializer,
+    SerializerMethodField,
+    SlugRelatedField,
+)
 
-from common.utils import (create_nested_objects, extract_fields,
-                          remove_blank_or_null)
+from common.utils import create_nested_objects, extract_fields, remove_blank_or_null
 from organizations.models import Organization
 
-from .models import (MedicineBrand, MedicineBrandHasDosageFormWithInfo,
-                     MedicineGeneric)
+from .models import MedicineBrand, MedicineBrandHasDosageFormWithInfo, MedicineGeneric
 
 
 class DosageFormSerializer(ModelSerializer):
@@ -47,7 +48,7 @@ class MedicineBrandSerializer(ModelSerializer):
     dosage_forms = SerializerMethodField(read_only=True)
 
     def get_dosage_forms(self, obj):  # Need FIX
-        if type(obj) is not OrderedDict:
+        if not isinstance(obj, OrderedDict):
             dosage_forms = MedicineBrandHasDosageFormWithInfo.objects.filter(
                 brand_id=obj.id
             )
@@ -64,27 +65,29 @@ class MedicineBrandSerializer(ModelSerializer):
             data=validated_data, fields=to_exclude
         )
         request = self.context.get("request")
-        org_uuid = request.parser_context.get("kwargs").get("org_uuid")
-        organization = Organization.objects.get(uuid=org_uuid)
-        add_data = {"manufacturer": organization}
-        validated_data.update(add_data)
+        organization_uuid = request.parser_context.get("kwargs").get(
+            "organization_uuid"
+        )
+        organization = Organization.objects.get(uuid=organization_uuid)
+        additional_data = {"manufacturer": organization}
+        validated_data.update(additional_data)
         instance = super().create(validated_data)
 
         # Following code snippet needs checking and refactoring for a better solution
         dosage_forms = extracted_data.get("dosage_forms_write_only")[0]
         dosage_forms = [dict(dosage_form) for dosage_form in dosage_forms]
-        add_data = {"brand": instance.id}
+        additional_data = {"brand": instance.id}
 
         for dosage_form in dosage_forms:
-            dosage_form.update(add_data)
+            dosage_form.update(additional_data)
         ##############################################################################
 
-        add_data = {"dosage_forms": dosage_forms}
+        additional_data = {"dosage_forms": dosage_forms}
         nested_fields = ("dosage_forms",)
         serializer_classes = (DosageFormSerializer,)
         try:
             create_nested_objects(
-                data=add_data,
+                data=additional_data,
                 fields=nested_fields,
                 serializer_classes=serializer_classes,
             )
@@ -103,21 +106,21 @@ class MedicineBrandSerializer(ModelSerializer):
         validated_data, extracted_data = extract_fields(
             data=validated_data, fields=to_exclude
         )
-        add_data = {"manufacturer": instance.manufacturer}
-        validated_data.update(add_data)
+        additional_data = {"manufacturer": instance.manufacturer}
+        validated_data.update(additional_data)
         instance = super().update(instance, validated_data)
 
         try:
             # Following code snippet needs checking and refactoring for a better solution
             dosage_forms = extracted_data.get("dosage_forms_write_only")[0]
             dosage_forms = [dict(dosage_form) for dosage_form in dosage_forms]
-            add_data = {"brand": instance.id}
+            additional_data = {"brand": instance.id}
 
             for dosage_form in dosage_forms:
-                dosage_form.update(add_data)
+                dosage_form.update(additional_data)
             ##############################################################################
 
-            add_data = {"dosage_forms": dosage_forms}
+            additional_data = {"dosage_forms": dosage_forms}
             nested_fields = ("dosage_forms",)
             serializer_classes = (DosageFormSerializer,)
             MedicineBrandHasDosageFormWithInfo.objects.filter(
@@ -125,7 +128,7 @@ class MedicineBrandSerializer(ModelSerializer):
             ).delete()
             try:
                 create_nested_objects(
-                    data=add_data,
+                    data=additional_data,
                     fields=nested_fields,
                     serializer_classes=serializer_classes,
                 )

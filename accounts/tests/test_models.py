@@ -1,10 +1,8 @@
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractBaseUser, AbstractUser
 from django.test import TestCase
-from django.utils import timezone
 
 
 class AccountUserTests(TestCase):

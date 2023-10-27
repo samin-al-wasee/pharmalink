@@ -11,7 +11,7 @@ class UserManager_(UserManager):
         username: str,
         email: str | None = ...,
         password: str | None = ...,
-        **extra_fields: Any
+        **extra_fields: Any,
     ) -> Any:
         """
         Used for creating new user. This method will be called from within "create()" method.

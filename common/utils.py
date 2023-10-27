@@ -20,7 +20,7 @@ def remove_blank_or_null(data: QueryDict | dict) -> QueryDict:
     clean_data = {}
 
     for key, value in data.items():
-        if type(value) is dict:
+        if isinstance(value, dict):
             nested_data.append((key, value))
             continue
 
@@ -59,7 +59,7 @@ def create_nested_objects(
         replacable = data.pop(field, None)
         if replacable is None:
             data[field] = None
-        elif type(replacable) is list:
+        elif isinstance(replacable, list):
             data[field] = _get_object(
                 data=replacable, serializer_class=serializer_class, many=True
             )
@@ -112,11 +112,11 @@ def replace_ids_with_uuid_slug(
 
 
 def get_path_objects(
-    request_kwargs: dict, path_vars: list | tuple, model_classes: list | tuple
+    request_kwargs: dict, path_variables: list | tuple, model_classes: list | tuple
 ) -> dict:
     kwarg_objects = {}
-    for path_var, model_class in zip(path_vars, model_classes):
-        path_var_value = request_kwargs.get(path_var)
+    for path_variable, model_class in zip(path_variables, model_classes):
+        path_var_value = request_kwargs.get(path_variable)
         try:
             try:
                 object_ = get_object_or_404(klass=model_class, uuid=path_var_value)
@@ -124,7 +124,7 @@ def get_path_objects(
                 object_ = get_object_or_404(klass=model_class, slug=path_var_value)
         except Http404:
             raise NotFound(f"{model_class} does not exist.")
-        kwarg_objects[path_var] = object_
+        kwarg_objects[path_variable] = object_
 
     return kwarg_objects
 

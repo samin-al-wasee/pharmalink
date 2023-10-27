@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_swagger",
     "drf_yasg",
+    "django_filters",
+    # "guardian",
     "django_countries",
     "accounts.apps.AccountsConfig",
     "common.apps.CommonConfig",
@@ -157,6 +159,6 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
 }

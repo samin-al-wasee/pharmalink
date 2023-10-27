@@ -5,17 +5,17 @@ from ..views import ConversationList, MessageListCreate
 urlpatterns = [
     path("/accounts/me/inbox", ConversationList.as_view(), name="inbox-for-user"),
     path(
-        "/accounts/me/inbox/<uuid:org_uuid>",
+        "/accounts/me/inbox/<uuid:organization_uuid>",
         MessageListCreate.as_view(),
         name="message-create-for-user",
     ),
     path(
-        "/organizations/<uuid:org_uuid>/services/inbox",
+        "/organizations/<uuid:organization_uuid>/services/inbox",
         ConversationList.as_view(),
         name="inbox-for-org",
     ),
     path(
-        "/organizations/<uuid:org_uuid>/services/inbox/<uuid:user_uuid>",
+        "/organizations/<uuid:organization_uuid>/services/inbox/<uuid:user_uuid>",
         MessageListCreate.as_view(),
         name="message-create-for-org",
     ),

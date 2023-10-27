@@ -1,9 +1,13 @@
 from django.urls import include, path
 
-from .views import (OrganizationDetailsUpdate, OrganizationListCreate,
-                    OrganizationListOnlyOwned, OrganizationUserCreateForUser,
-                    OrganizationUserDetailsUpdateDelete,
-                    OrganizationUserListCreateForOwner)
+from .views import (
+    OrganizationDetailsUpdate,
+    OrganizationListCreate,
+    OrganizationListOnlyOwned,
+    OrganizationUserCreateForUser,
+    OrganizationUserDetailsUpdateDelete,
+    OrganizationUserListCreateForOwner,
+)
 
 urlpatterns = [
     path(
@@ -22,22 +26,25 @@ urlpatterns = [
         name="org-user-create-for-user",
     ),
     path(
-        "/organizations/<uuid:org_uuid>",
+        "/organizations/<uuid:organization_uuid>",
         OrganizationDetailsUpdate.as_view(),
         name="org-details-update",
     ),
     path(
-        "/organizations/<uuid:org_uuid>/medicines",
+        "/organizations/<uuid:organization_uuid>/medicines",
         include("medicines.urls.org-medicines"),
     ),
-    path("/organizations/<uuid:org_uuid>/services", include("services.urls.root")),
     path(
-        "/organizations/<uuid:org_uuid>/users",
+        "/organizations/<uuid:organization_uuid>/services",
+        include("services.urls.root"),
+    ),
+    path(
+        "/organizations/<uuid:organization_uuid>/users",
         OrganizationUserListCreateForOwner.as_view(),
         name="org-user-list-create-for-owner",
     ),
     path(
-        "/organizations/<uuid:org_uuid>/users/<str:user_uuid>",
+        "/organizations/<uuid:organization_uuid>/users/<uuid:user_uuid>",
         OrganizationUserDetailsUpdateDelete.as_view(),
         name="org-user-details-update-delete",
     ),
