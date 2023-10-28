@@ -11,52 +11,52 @@ from ..views import (
 
 urlpatterns = [
     path(
-        "/organizations/<uuid:organization_uuid>/services/prescriptions",
+        "/organizations/<uuid:organization_uuid>/prescriptions",
         PrescriptionListCreate.as_view(),
         name="prescription-list-create-doctor",
     ),
     path(
-        "/organizations/<uuid:organization_uuid>/services/prescriptions/<uuid:prescription_uuid>",
+        "/organizations/<uuid:organization_uuid>/prescriptions/<uuid:prescription_uuid>",
         PrescriptionDetailsDelete.as_view(),
         name="prescription-details-delete-doctor",
     ),
     path(
-        "/organizations/<uuid:organization_uuid>/services/prescriptions/<uuid:prescription_uuid>/mark-as-done",
+        "/organizations/<uuid:organization_uuid>/prescriptions/<uuid:prescription_uuid>/mark-as-done",
         PrescriptionMarkAsDone.as_view(),
         name="prescription-mark-as-done-doctor",
     ),
     path(
-        "/organizations/<uuid:organization_uuid>/services/prescriptions/<uuid:prescription_uuid>/feedbacks",
+        "/organizations/<uuid:organization_uuid>/prescriptions/<uuid:prescription_uuid>/feedbacks",
         PrescriptionFeedbackCreate.as_view(),
         name="prescription-feedback-for-doctor",
     ),
     path(
-        "/organizations/<uuid:organization_uuid>/services/prescriptions/<uuid:prescription_uuid>/chat",
+        "/organizations/<uuid:organization_uuid>/prescriptions/<uuid:prescription_uuid>/chat",
         PrescriptionChatListCreate.as_view(),
         name="prescription-chat-for-doctor",
     ),
     path(
-        "/accounts/me/prescriptions",
+        "/me/prescriptions",
         PrescriptionListForPatient.as_view(),
         name="prescription-list-patient",
     ),
     path(
-        "/accounts/me/prescriptions/<uuid:prescription_uuid>",
+        "/me/prescriptions/<uuid:prescription_uuid>",
         PrescriptionDetailsDelete.as_view(),
         name="prescription-details-delete-patient",
     ),
     path(
-        "/accounts/me/prescriptions/<uuid:prescription_uuid>/mark-as-done",
+        "/me/prescriptions/<uuid:prescription_uuid>/mark-as-done",
         PrescriptionMarkAsDone.as_view(),
         name="prescription-mark-as-done-patient",
     ),
     path(
-        "/accounts/me/prescriptions/<uuid:prescription_uuid>/feedbacks",
+        "/me/prescriptions/<uuid:prescription_uuid>/feedbacks",
         PrescriptionFeedbackCreate.as_view(),
         name="prescription-feedback-for-patient",
     ),
     path(
-        "/accounts/me/prescriptions/<uuid:prescription_uuid>/chat",
+        "/me/prescriptions/<uuid:prescription_uuid>/chat",
         PrescriptionChatListCreate.as_view(),
         name="prescription-chat-for-patient",
     ),

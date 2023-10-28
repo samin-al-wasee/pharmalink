@@ -11,38 +11,28 @@ from organizations.mixins import OwnerPermissionMixin
 
 from .models import MedicineBrand, MedicineGeneric
 from .serializers import MedicineBrandSerializer, MedicineGenericSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 
 
 # Create your views here.
 class MedicineBrandListForUser(ListAPIView):
-    queryset = MedicineBrand.objects.filter()
+    queryset = MedicineBrand.objects.select_related("generic", "manufacturer").filter()
     serializer_class = MedicineBrandSerializer
     permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        request: Request = self.request
-        query_parameters = request.query_parameters
-        if query_parameters:
-            query = Q()
-            query_param_mapper = {
-                "name": "name",
-                "generic": "generic__name",
-                "pharmacology": "generic__pharmacology",
-                "indications": "generic__indications",
-                "interactions": "generic__indications",
-                "sideeffects": "generic__side_effects",
-                "manufacturer": "manufacturer__name",
-            }
-            for parameter, keywords in query_parameters.items():
-                keywords = query_parameters.get(parameter).split("%")
-                field = query_param_mapper.get(parameter)
-                for word in keywords:
-                    query |= Q(**{field + "__icontains": word})
-            queryset = MedicineBrand.objects.select_related(
-                "generic", "manufacturer"
-            ).filter(query)
-            return queryset
-        return super().get_queryset()
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ["generic__name", "manufacturer__name"]
+    search_fields = [
+        "name",
+        "slug",
+        "generic__name",
+        "generic__slug",
+        "generic__pharmacology",
+        "generic__indications",
+        "generic__interactions",
+        "generic__side_effects",
+        "manufacturer__name",
+    ]
 
 
 class MedicineBrandListCreateForOwner(OwnerPermissionMixin, ListCreateAPIView):
@@ -73,15 +63,12 @@ class MedicineGenericListForUser(ListAPIView):
     queryset = MedicineGeneric.objects.filter()
     serializer_class = MedicineGenericSerializer
     permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        request: Request = self.request
-        query_parameters = request.query_parameters
-        if query_parameters:
-            keywords = query_parameters.get("name").split("%")
-            query = Q()
-            for word in keywords:
-                query |= Q(slug__icontains=word)
-            queryset = MedicineGeneric.objects.filter(query)
-            return queryset
-        return super().get_queryset()
+    filter_backends = [SearchFilter]
+    search_fields = [
+        "name",
+        "slug",
+        "pharmacology",
+        "indications",
+        "interactions",
+        "side_effects",
+    ]

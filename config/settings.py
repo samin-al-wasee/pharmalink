@@ -144,7 +144,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 APPEND_SLASH = False
 
-LOGIN_REDIRECT_URL = "/accounts/me"
+LOGIN_REDIRECT_URL = "/api/v1/me"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
@@ -156,6 +156,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
     ),
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
 SIMPLE_JWT = {

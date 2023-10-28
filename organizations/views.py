@@ -17,6 +17,8 @@ from .serializers import (
     OrganizationUserSerializerForOwner,
     OrganizationUserSerializerForUser,
 )
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 
 
 # Create your views here.
@@ -42,9 +44,12 @@ class OrganizationListCreate(ListCreateAPIView):
     Create organization for authenticated user.
     """
 
-    queryset = Organization.objects.filter(status=ACTIVE)
+    queryset = Organization.objects.select_related("owner", "address").filter()
     serializer_class = OrganizationSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ["status", "owner__name", "address__city", "address__country"]
+    search_fields = ["name", "information",]
 
 
 class OrganizationDetailsUpdate(OwnerPermissionMixin, RetrieveUpdateDestroyAPIView):

@@ -136,9 +136,9 @@ class PrescriptionSerializer(ModelSerializer):
             )
             return serializer.data
 
-    def is_valid(self, *, raise_exception=False):
-        self.initial_data = remove_blank_or_null(self.initial_data)
-        return super().is_valid(raise_exception=raise_exception)
+    # def is_valid(self, *, raise_exception=False):
+    #     self.initial_data = remove_blank_or_null(self.initial_data)
+    #     return super().is_valid(raise_exception=raise_exception)
 
     def validate_patient(self, obj):
         patient_uuid = obj.uuid
@@ -147,32 +147,42 @@ class PrescriptionSerializer(ModelSerializer):
             "organization_uuid"
         )
         try:
-            relation = OrganizationHasUserWithRole.objects.select_related().get(
-                organization__uuid=organization_uuid, user__uuid=patient_uuid
-            )
+            relation = OrganizationHasUserWithRole.objects.select_related(
+                "organziation", "user"
+            ).get(organization__uuid=organization_uuid, user__uuid=patient_uuid)
         except OrganizationHasUserWithRole.DoesNotExist:
-            raise NotFound({"patient": "User not found."})
+            raise ValidationError("User not found.")
 
         if relation.role == PATIENT:
             return obj
         else:
-            raise ValidationError({"patient": "User is not patient in organization."})
+            raise ValidationError("User is not a patient in this organization.")
 
     def validate_prescribed_medicines_write_only(self, data):
-        prescribed_medicines = data[0]
+        prescribed_medicines = data
         request = self.context.get("request")
         organization_uuid = request.parser_context.get("kwargs").get(
             "organization_uuid"
         )
-        for prescribed_medicine in prescribed_medicines:
+        errors = {}
+        for index, prescribed_medicine in enumerate(prescribed_medicines):
             try:
-                brand = MedicineBrand.objects.get(slug=prescribed_medicine.get("brand"))
+                brand = MedicineBrand.objects.select_related("manufacturer").get(
+                    slug=prescribed_medicine.get("brand")
+                )
+                print(f"{brand.manufacturer.uuid}, {organization_uuid}")
                 if brand.manufacturer.uuid != organization_uuid:
-                    raise ValidationError(
-                        f"{brand.name} is not manufactured by organization."
-                    )
+                    error = {
+                        index: {
+                            "brand": f"{brand.name} is not manufactured by organization."
+                        }
+                    }
+                    errors.update(error)
             except MedicineBrand.DoesNotExist:
-                raise ValidationError("Medicine not found")
+                error = {index: {"brand": "Medicine not found."}}
+                errors.update(error)
+        if errors:
+            raise ValidationError(errors)
         return data
 
     def create(self, validated_data):
@@ -188,9 +198,8 @@ class PrescriptionSerializer(ModelSerializer):
         additional_data = {"organization": organization, "doctor": request.user}
         validated_data.update(additional_data)
         instance = super().create(validated_data)
-
         # Following code snippet needs checking and refactoring for a better solution
-        prescribed_medicines = extracted_data.get("prescribed_medicines_write_only")[0]
+        prescribed_medicines = extracted_data.get("prescribed_medicines_write_only")
         prescribed_medicines = [
             dict(prescribed_medicine) for prescribed_medicine in prescribed_medicines
         ]
@@ -203,6 +212,7 @@ class PrescriptionSerializer(ModelSerializer):
         additional_data = {"prescribed_medicines": prescribed_medicines}
         nested_fields = ("prescribed_medicines",)
         serializer_classes = (PrescriptionHasMedicineSerializer,)
+        print("======================")
         create_nested_objects(
             data=additional_data,
             fields=nested_fields,
@@ -302,7 +312,7 @@ class PrescriptionDetailSerializer(ModelSerializer):
     chat = SerializerMethodField(read_only=True)
 
     def get_prescribed_medicines(self, obj):  # Need FIX
-        if type(obj) is not OrderedDict:
+        if not isinstance(obj, OrderedDict):
             prescribed_medicines = PrescriptionHasMedicine.objects.filter(
                 prescription_id=obj.id
             )
@@ -312,7 +322,7 @@ class PrescriptionDetailSerializer(ModelSerializer):
             return serializer.data
 
     def get_feedbacks(self, obj):
-        if type(obj) is not OrderedDict:
+        if not isinstance(obj, OrderedDict):
             request = self.context.get("request")
             authenticated_user = request.user
             feedbacks = (
@@ -324,7 +334,7 @@ class PrescriptionDetailSerializer(ModelSerializer):
             return serializer.data
 
     def get_chat(self, obj):
-        if type(obj) is not OrderedDict:
+        if not isinstance(obj, OrderedDict):
             chat = PrescriptionMessage.objects.filter(prescription_id=obj.id).order_by(
                 "-created_at"
             )[:5]

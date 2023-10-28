@@ -43,7 +43,6 @@ def extract_fields(data: dict, fields: tuple | list):
     Return only remaining data after extraction by default.
     """
     excluded = {field: data.pop(field, None) for field in fields}
-    print(excluded)
     return (data, excluded)
 
 
@@ -132,6 +131,7 @@ def get_path_objects(
 def _get_object(
     data: dict | list, serializer_class: ModelSerializer, many: bool = False
 ) -> list | Any:
+    print(data)
     serializer: ModelSerializer = serializer_class(data=data, many=many)
     serializer.is_valid(raise_exception=True)
     instance = serializer.save()

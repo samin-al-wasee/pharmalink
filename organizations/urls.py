@@ -16,7 +16,7 @@ urlpatterns = [
         name="org-list-all-create",
     ),
     path(
-        "/organizations/owned",
+        "/me/organizations",
         OrganizationListOnlyOwned.as_view(),
         name="org-list-owned",
     ),
@@ -35,7 +35,7 @@ urlpatterns = [
         include("medicines.urls.org-medicines"),
     ),
     path(
-        "/organizations/<uuid:organization_uuid>/services",
+        "/organizations/<uuid:organization_uuid>",
         include("services.urls.root"),
     ),
     path(
