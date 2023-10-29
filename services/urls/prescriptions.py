@@ -1,9 +1,12 @@
 from django.urls import path
 
 from ..views import (
-    PrescriptionChatListCreate,
-    PrescriptionDetailsDelete,
-    PrescriptionFeedbackCreate,
+    PrescriptionChatListCreateForPatient,
+    PrescriptionChatListCreateforDoctor,
+    PrescriptionDetailsDeleteForPatient,
+    PrescriptionDetailsDeleteForDoctor,
+    PrescriptionFeedbackCreateForDoctor,
+    PrescriptionFeedbackCreateForPatient,
     PrescriptionListCreate,
     PrescriptionListForPatient,
     PrescriptionMarkAsDone,
@@ -17,7 +20,7 @@ urlpatterns = [
     ),
     path(
         "/we/<uuid:organization_uuid>/prescriptions/<uuid:prescription_uuid>",
-        PrescriptionDetailsDelete.as_view(),
+        PrescriptionDetailsDeleteForDoctor.as_view(),
         name="prescription-details-delete-doctor",
     ),
     path(
@@ -27,12 +30,12 @@ urlpatterns = [
     ),
     path(
         "/we/<uuid:organization_uuid>/prescriptions/<uuid:prescription_uuid>/feedbacks",
-        PrescriptionFeedbackCreate.as_view(),
+        PrescriptionFeedbackCreateForDoctor.as_view(),
         name="prescription-feedback-for-doctor",
     ),
     path(
         "/we/<uuid:organization_uuid>/prescriptions/<uuid:prescription_uuid>/chat",
-        PrescriptionChatListCreate.as_view(),
+        PrescriptionChatListCreateforDoctor.as_view(),
         name="prescription-chat-for-doctor",
     ),
     path(
@@ -42,7 +45,7 @@ urlpatterns = [
     ),
     path(
         "/me/prescriptions/<uuid:prescription_uuid>",
-        PrescriptionDetailsDelete.as_view(),
+        PrescriptionDetailsDeleteForPatient.as_view(),
         name="prescription-details-delete-patient",
     ),
     path(
@@ -52,12 +55,12 @@ urlpatterns = [
     ),
     path(
         "/me/prescriptions/<uuid:prescription_uuid>/feedbacks",
-        PrescriptionFeedbackCreate.as_view(),
+        PrescriptionFeedbackCreateForPatient.as_view(),
         name="prescription-feedback-for-patient",
     ),
     path(
         "/me/prescriptions/<uuid:prescription_uuid>/chat",
-        PrescriptionChatListCreate.as_view(),
+        PrescriptionChatListCreateForPatient.as_view(),
         name="prescription-chat-for-patient",
     ),
 ]

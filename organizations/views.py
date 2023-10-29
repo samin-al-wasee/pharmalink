@@ -8,7 +8,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.mixins import CreateModelMixin
 
-from common.constants import ACTIVE, INACTIVE
+from common.constants import ACTIVE, DISBANDED
 
 from .mixins import OwnerPermissionMixin
 from .models import Organization, OrganizationHasUserWithRole
@@ -20,10 +20,11 @@ from .serializers import (
 )
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from common.mixins import PathValidationMixin
 
 
 # Create your views here.
-class OrganizationList(ListAPIView):
+class _OrganizationList(ListAPIView):
     queryset = Organization.objects.select_related("owner", "address").filter()
     serializer_class = OrganizationSerializer
     permission_classes = [IsAuthenticated]
@@ -35,9 +36,9 @@ class OrganizationList(ListAPIView):
     ]
 
 
-class OrganizationListOnlyOwned(OrganizationList):
+class OrganizationListOnlyOwned(_OrganizationList):
     """
-    Return only owned organizations by authenticated user regardless of status.
+    List organizations owned only by the authenticated user.
     """
 
     def get_queryset(self):
@@ -46,13 +47,16 @@ class OrganizationListOnlyOwned(OrganizationList):
         return queryset
 
 
-class OrganizationListCreate(CreateModelMixin, OrganizationList):
+class OrganizationListCreate(CreateModelMixin, _OrganizationList):
     """
-    Return all active organizations regardless of owner.
+    List all organizations.
     Create organization for authenticated user.
     """
 
     filterset_fields = ["status", "owner__name", "address__city", "address__country"]
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
 class OrganizationDetailsUpdate(OwnerPermissionMixin, RetrieveUpdateDestroyAPIView):
@@ -62,7 +66,7 @@ class OrganizationDetailsUpdate(OwnerPermissionMixin, RetrieveUpdateDestroyAPIVi
     lookup_url_kwarg = "organization_uuid"
 
     def perform_destroy(self, instance: Organization):  # Possible REFACTOR
-        instance.status = INACTIVE
+        instance.status = DISBANDED
         instance.save()
 
 
@@ -71,29 +75,37 @@ class OrganizationUserCreateForUser(CreateAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class OrganizationUserListCreateForOwner(OwnerPermissionMixin, ListCreateAPIView):
+class OrganizationUserListCreateForOwner(
+    OwnerPermissionMixin, PathValidationMixin, ListCreateAPIView
+):
     serializer_class = OrganizationUserSerializerForOwner
+    path_variables = ("organization_uuid",)
+    model_classes = (Organization,)
+    kwarg_objects = {}
 
     def get_queryset(self):
-        organization_uuid = self.request.parser_context.get("kwargs").get(
+        organization_uuid = self.kwargs.get(
             "organization_uuid"
         )
-        queryset = OrganizationHasUserWithRole.objects.select_related().filter(
+        queryset = OrganizationHasUserWithRole.objects.select_related("organization", "user").filter(
             organization__uuid=organization_uuid
         )
         return queryset
 
 
 class OrganizationUserDetailsUpdateDelete(
-    OwnerPermissionMixin, RetrieveUpdateDestroyAPIView
+    OwnerPermissionMixin, PathValidationMixin, RetrieveUpdateDestroyAPIView
 ):
     serializer_class = OrganizationUserBaseSerializer
+    path_variables = ("organization_uuid",)
+    model_classes = (Organization,)
+    kwarg_objects = {}
     lookup_field = "user__uuid"
     lookup_url_kwarg = "user_uuid"
 
     def get_queryset(self):
         organization_uuid = self.kwargs.get("organization_uuid")
-        queryset = OrganizationHasUserWithRole.objects.select_related().filter(
+        queryset = OrganizationHasUserWithRole.objects.select_related("organization", "user").filter(
             organization__uuid=organization_uuid
         )
         return queryset

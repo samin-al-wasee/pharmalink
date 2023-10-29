@@ -7,9 +7,12 @@ from rest_framework.generics import (
     RetrieveDestroyAPIView,
 )
 from rest_framework.permissions import NOT, IsAuthenticated
+from .mixins import (
+    PrescriptionDoctorPermissionMixin,
+    PrescriptionPatientPermissionMixin,
+)
 
 from common.constants import DOCTOR, PATIENT
-from common.utils import get_path_objects
 from organizations.models import Organization
 
 from .models import (
@@ -18,7 +21,11 @@ from .models import (
     Prescription,
     PrescriptionMessage,
 )
-from .permissions import HasPrescriptionAccess, HasPrescriptionRole, HasRole
+from .permissions import (
+    HasPrescriptionAccess,
+    HasRole,
+    IsPrescriptionUndone,
+)
 from .serializers import (
     FeedbackSerializer,
     MessageSerializer,
@@ -27,11 +34,15 @@ from .serializers import (
     PrescriptionMessageSerializer,
     PrescriptionSerializer,
 )
+from common.mixins import PathValidationMixin
 
 
 # Create your views here.
-class FeedbackListCreate(ListCreateAPIView):
+class FeedbackListCreate(PathValidationMixin, ListCreateAPIView):
     serializer_class = FeedbackSerializer
+    path_variables = ("organization_uuid",)
+    model_classes = (Organization,)
+    kwarg_objects = {}
 
     def get_permissions(self):
         organization = self.kwarg_objects.get("organization_uuid")
@@ -55,20 +66,10 @@ class FeedbackListCreate(ListCreateAPIView):
         else:
             return [IsAuthenticated()]
 
-    def check_permissions(self, request):  # Should REFACTOR
-        path_variables = ("organization_uuid",)
-        model_classes = (Organization,)
-        self.kwarg_objects = get_path_objects(
-            request_kwargs=self.kwargs,
-            path_variables=path_variables,
-            model_classes=model_classes,
-        )
-        return super().check_permissions(request)
-
     def get_queryset(self):
         organization = self.kwarg_objects.get("organization_uuid")
         queryset = (
-            FeedbackToOrganization.objects.select_related()
+            FeedbackToOrganization.objects.select_related("user", "organization")
             .filter(organization_id=organization.id)
             .order_by("-created_at")
             .distinct()
@@ -76,119 +77,110 @@ class FeedbackListCreate(ListCreateAPIView):
         return queryset
 
 
-class ConversationList(ListAPIView):
+class _ConversationList(ListAPIView):
     serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = MessageBetweenUserOrganization.objects.select_related(
+        "user", "organization"
+    ).filter()
 
-    def get_permissions(self):
-        organization_uuid = self.kwargs.get("organization_uuid")
-        if organization_uuid:
-            organization = self.kwarg_objects.get("organization_uuid", None)
-            authenticated_user = self.request.user
-            return [
-                IsAuthenticated(),
-                NOT(
-                    HasRole(
-                        organization=organization, user=authenticated_user, role=PATIENT
-                    )
-                ),
-            ]
-        else:
-            return [IsAuthenticated()]
 
-    def check_permissions(self, request):
-        organization_uuid = self.kwargs.get("organization_uuid", None)
-        if organization_uuid:
-            path_variables = ("organization_uuid",)
-            model_classes = (Organization,)
-            self.kwarg_objects = get_path_objects(
-                request_kwargs=self.kwargs,
-                path_variables=path_variables,
-                model_classes=model_classes,
-            )
-        return super().check_permissions(request)
-
+class ConversationListForPatient(_ConversationList):
     def get_queryset(self):
-        organization_uuid = self.kwargs.get("organization_uuid")
-        if organization_uuid:
-            organization = self.kwarg_objects.get("organization_uuid", None)
-            queryset = (
-                MessageBetweenUserOrganization.objects.select_related()
-                .filter(organization_id=organization.id)
-                .order_by("-created_at")
-            )
-            return queryset
-        else:
-            authenticated_user = self.request.user
-            queryset = (
-                MessageBetweenUserOrganization.objects.select_related()
-                .filter(user_id=authenticated_user.id)
-                .order_by("-created_at")
-            )
-            return queryset
-
-
-class MessageListCreate(ListCreateAPIView):
-    serializer_class = MessageSerializer
-
-    def get_permissions(self):
-        recepient = self.kwarg_objects.get("user_uuid", None)
-        organization = self.kwarg_objects.get("organization_uuid")
         authenticated_user = self.request.user
-        if recepient:
-            return [
-                IsAuthenticated(),
-                NOT(
-                    HasRole(
-                        organization=organization, user=authenticated_user, role=PATIENT
-                    )
-                ),
-                HasRole(organization=organization, user=recepient, role=PATIENT),
-            ]
-        else:
-            return [
-                IsAuthenticated(),
-                HasRole(
-                    organization=organization, user=authenticated_user, role=PATIENT
-                ),
-            ]
-
-    def check_permissions(self, request):
-        user_uuid = self.kwargs.get("user_uuid", None)
-        if user_uuid:
-            path_variables = ("organization_uuid", "user_uuid")
-            model_classes = (Organization, get_user_model())
-        else:
-            path_variables = ("organization_uuid",)
-            model_classes = (Organization,)
-        self.kwarg_objects = get_path_objects(
-            request_kwargs=self.kwargs,
-            path_variables=path_variables,
-            model_classes=model_classes,
+        queryset = self.queryset.filter(user_id=authenticated_user.id).order_by(
+            "-created_at"
         )
-        return super().check_permissions(request)
+        return queryset
 
-    def get_queryset(self):
-        recepient = self.kwarg_objects.get("user_uuid", None)
+
+class ConversationListForOrganization(PathValidationMixin, _ConversationList):
+    path_variables = ("organization_uuid",)
+    model_classes = (Organization,)
+    kwarg_objects = {}
+
+    def get_permissions(self):
+        permissions = super().get_permissions()
         organization = self.kwarg_objects.get("organization_uuid", None)
         authenticated_user = self.request.user
-        if recepient:
-            queryset = (
-                MessageBetweenUserOrganization.objects.select_related()
-                .filter(organization_id=organization.id, user_id=recepient.id)
-                .order_by("-created_at")
+        permissions.append(
+            NOT(
+                HasRole(
+                    organization=organization, user=authenticated_user, role=PATIENT
+                )
             )
-            return queryset
-        else:
-            queryset = (
-                MessageBetweenUserOrganization.objects.select_related()
-                .filter(organization_id=organization.id, user_id=authenticated_user.id)
-                .order_by("-created_at")
-            )
-            return queryset
+        )
+        return permissions
+
+    def get_queryset(self):
+        organization = self.kwarg_objects.get("organization_uuid", None)
+        queryset = self.queryset.filter(organization_id=organization.id).order_by(
+            "-created_at"
+        )
+        return queryset
 
 
-class PrescriptionListCreate(ListCreateAPIView):
+class _MessageListCreate(PathValidationMixin, ListCreateAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = MessageBetweenUserOrganization.objects.select_related(
+        "user", "organization"
+    ).filter()
+    path_variables = ("organization_uuid",)
+    model_classes = (Organization,)
+    kwarg_objects = {}
+
+
+class MessageListCreateForPatient(_MessageListCreate):
+    def get_permissions(self):
+        permissions = super().get_permissions()
+        organization = self.kwarg_objects.get("organization_uuid", None)
+        authenticated_user = self.request.user
+        permissions.append(
+            HasRole(organization=organization, user=authenticated_user, role=PATIENT),
+        )
+        return permissions
+
+    def get_queryset(self):
+        organization = self.kwarg_objects.get("organization_uuid", None)
+        authenticated_user = self.request.user
+        queryset = self.queryset.filter(
+            organization_id=organization.id, user_id=authenticated_user.id
+        ).order_by("-created_at")
+        return queryset
+
+
+class MessageListCreateForOrganization(_MessageListCreate):
+    path_variables = ("organization_uuid", "user_uuid")
+    model_classes = (Organization, get_user_model())
+
+    def get_permissions(self):
+        permissions = super().get_permissions()
+        organization = self.kwarg_objects.get("organization_uuid", None)
+        authenticated_user = self.request.user
+        permissions.append(
+            NOT(
+                HasRole(
+                    organization=organization, user=authenticated_user, role=PATIENT
+                )
+            ),
+        )
+        return permissions
+
+    def get_queryset(self):
+        organization = self.kwarg_objects.get("organization_uuid", None)
+        recepient = self.kwarg_objects.get("user_uuid", None)
+        queryset = self.queryset.filter(
+            organization_id=organization.id, user_id=recepient.id
+        ).order_by("-created_at")
+        return queryset
+
+
+class PrescriptionListCreate(PathValidationMixin, ListCreateAPIView):
     serializer_class = PrescriptionSerializer
+    path_variables = ("organization_uuid",)
+    model_classes = (Organization,)
+    kwarg_objects = {}
 
     def get_permissions(self):
         organization = self.kwarg_objects.get("organization_uuid", None)
@@ -198,72 +190,56 @@ class PrescriptionListCreate(ListCreateAPIView):
             HasRole(organization=organization, user=authenticated_user, role=DOCTOR),
         ]
 
-    def check_permissions(self, request):
-        path_variables = ("organization_uuid",)
-        model_classes = (Organization,)
-        self.kwarg_objects = get_path_objects(
-            request_kwargs=self.kwargs,
-            path_variables=path_variables,
-            model_classes=model_classes,
-        )
-        return super().check_permissions(request)
-
     def get_queryset(self):
         organization = self.kwarg_objects.get("organization_uuid", None)
         authenticated_user = self.request.user
-        queryset = Prescription.objects.select_related().filter(
-            organization_id=organization.id, doctor_id=authenticated_user.id
-        )
+        queryset = Prescription.objects.select_related(
+            "organization", "patient", "doctor"
+        ).filter(organization_id=organization.id, doctor_id=authenticated_user.id)
         return queryset
 
 
 class PrescriptionListForPatient(ListAPIView):
-    permission_classes = [IsAuthenticated]
     serializer_class = PrescriptionSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         authenticated_user = self.request.user
-        queryset = Prescription.objects.select_related().filter(
-            patient_id=authenticated_user.id
-        )
+        queryset = Prescription.objects.select_related(
+            "organization", "patient", "doctor"
+        ).filter(patient_id=authenticated_user.id)
         return queryset
 
 
-class PrescriptionDetailsDelete(RetrieveDestroyAPIView):
-    queryset = Prescription.objects.filter()
+class _PrescriptionDetailsDelete(RetrieveDestroyAPIView):
+    queryset = Prescription.objects.select_related(
+        "organization", "patient", "doctor"
+    ).filter()
     serializer_class = PrescriptionDetailSerializer
+    permission_classes = [IsAuthenticated, HasPrescriptionAccess]
     lookup_field = "uuid"
     lookup_url_kwarg = "prescription_uuid"
 
-    def get_permissions(self):
-        organization_uuid = self.kwargs.get("organization_uuid")
-        if organization_uuid:
-            organization = self.kwarg_objects.get("organization_uuid", None)
-            authenticated_user = self.request.user
-            return [
-                IsAuthenticated(),
-                HasRole(
-                    organization=organization, user=authenticated_user, role=DOCTOR
-                ),
-                HasPrescriptionAccess(),
-            ]
-        else:
-            return [
-                IsAuthenticated(),
-                HasPrescriptionAccess(),
-            ]
 
-    def check_permissions(self, request):
-        organization_uuid = self.kwargs.get("organization_uuid", None)
-        if organization_uuid:
-            path_variables = ("organization_uuid",)
-            model_classes = (Organization,)
-            self.kwarg_objects = get_path_objects(
-                request_kwargs=self.kwargs,
-                path_variables=path_variables,
-                model_classes=model_classes,
-            )
-        return super().check_permissions(request)
+class PrescriptionDetailsDeleteForPatient(_PrescriptionDetailsDelete):
+    pass
+
+
+class PrescriptionDetailsDeleteForDoctor(
+    PathValidationMixin, _PrescriptionDetailsDelete
+):
+    path_variables = ("organization_uuid",)
+    model_classes = (Organization,)
+    kwarg_objects = {}
+
+    def get_permissions(self):
+        permissions = super().get_permissions()
+        organization = self.kwarg_objects.get("organization_uuid", None)
+        authenticated_user = self.request.user
+        permissions.append(
+            HasRole(organization=organization, user=authenticated_user, role=DOCTOR)
+        )
+        return permissions
 
 
 class PrescriptionMarkAsDone(DestroyAPIView):
@@ -281,80 +257,36 @@ class PrescriptionMarkAsDone(DestroyAPIView):
         instance.save()
 
 
-class PrescriptionFeedbackCreate(CreateAPIView):
+class _PrescriptionFeedbackCreate(PathValidationMixin, CreateAPIView):
     serializer_class = PrescriptionFeedbackSerializer
-
-    def get_permissions(self):
-        organization = self.kwarg_objects.get("organization_uuid")
-        prescription = self.kwarg_objects.get("prescription_uuid")
-        authenticated_user = self.request.user
-        if organization:
-            return [
-                IsAuthenticated(),
-                HasPrescriptionRole(
-                    prescription=prescription, user=authenticated_user, role=DOCTOR
-                ),
-            ]
-        else:
-            return [
-                IsAuthenticated(),
-                HasPrescriptionRole(
-                    prescription=prescription, user=authenticated_user, role=PATIENT
-                ),
-            ]
-
-    def check_permissions(self, request):
-        organization_uuid = self.kwargs.get("organization_uuid", None)
-        if organization_uuid:
-            path_variables = ("organization_uuid", "prescription_uuid")
-            model_classes = (Organization, Prescription)
-        else:
-            path_variables = ("prescription_uuid",)
-            model_classes = (Prescription,)
-        self.kwarg_objects = get_path_objects(
-            request_kwargs=self.kwargs,
-            path_variables=path_variables,
-            model_classes=model_classes,
-        )
-        return super().check_permissions(request)
+    permission_classes = [IsAuthenticated, IsPrescriptionUndone]
+    path_variables = ("prescription_uuid",)
+    model_classes = (Prescription,)
+    kwarg_objects = {}
 
 
-class PrescriptionChatListCreate(ListCreateAPIView):
+class PrescriptionFeedbackCreateForPatient(
+    PrescriptionPatientPermissionMixin, _PrescriptionFeedbackCreate
+):
+    pass
+
+
+class PrescriptionFeedbackCreateForDoctor(
+    PrescriptionDoctorPermissionMixin, _PrescriptionFeedbackCreate
+):
+    path_variables = ("organization_uuid", "prescription_uuid")
+    model_classes = (
+        Organization,
+        Prescription,
+    )
+
+
+class _PrescriptionChatListCreate(PathValidationMixin, ListCreateAPIView):
     serializer_class = PrescriptionMessageSerializer
-
-    def get_permissions(self):
-        organization = self.kwarg_objects.get("organization_uuid")
-        prescription = self.kwarg_objects.get("prescription_uuid")
-        authenticated_user = self.request.user
-        if organization:
-            return [
-                IsAuthenticated(),
-                HasPrescriptionRole(
-                    prescription=prescription, user=authenticated_user, role=DOCTOR
-                ),
-            ]
-        else:
-            return [
-                IsAuthenticated(),
-                HasPrescriptionRole(
-                    prescription=prescription, user=authenticated_user, role=PATIENT
-                ),
-            ]
-
-    def check_permissions(self, request):
-        organization_uuid = self.kwargs.get("organization_uuid", None)
-        if organization_uuid:
-            path_variables = ("organization_uuid", "prescription_uuid")
-            model_classes = (Organization, Prescription)
-        else:
-            path_variables = ("prescription_uuid",)
-            model_classes = (Prescription,)
-        self.kwarg_objects = get_path_objects(
-            request_kwargs=self.kwargs,
-            path_variables=path_variables,
-            model_classes=model_classes,
-        )
-        return super().check_permissions(request)
+    permission_classes = [IsAuthenticated, IsPrescriptionUndone]
+    path_variables = ("prescription_uuid",)
+    model_classes = (Prescription,)
+    kwarg_objects = {}
 
     def get_queryset(self):
         prescription = self.kwarg_objects.get("prescription_uuid")
@@ -364,3 +296,19 @@ class PrescriptionChatListCreate(ListCreateAPIView):
             .order_by("-created_at")
         )
         return queryset
+
+
+class PrescriptionChatListCreateForPatient(
+    PrescriptionPatientPermissionMixin, _PrescriptionChatListCreate
+):
+    pass
+
+
+class PrescriptionChatListCreateforDoctor(
+    PrescriptionDoctorPermissionMixin, _PrescriptionChatListCreate
+):
+    path_variables = ("organization_uuid", "prescription_uuid")
+    model_classes = (
+        Organization,
+        Prescription,
+    )

@@ -29,10 +29,6 @@ class OrganizationSerializer(ModelSerializer):
     address = AddressSerializer(allow_null=True, required=False)
     owner = SlugRelatedField(slug_field="uuid", read_only=True)
 
-    def is_valid(self, *, raise_exception=False):
-        self.initial_data = remove_blank_or_null(self.initial_data)
-        return super().is_valid(raise_exception=raise_exception)
-
     def create(self, validated_data):  # Needs REFACTOR
         request: Request = self.context.get("request")
         additional_data = {"owner": request.user}

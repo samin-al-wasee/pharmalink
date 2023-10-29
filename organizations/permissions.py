@@ -13,17 +13,21 @@ class IsOrganizationOwner(BasePermission):
     Assume user and organization both exist.
     """
 
-    def __init__(self, organization: Organization, user: get_user_model()) -> None:
+    def __init__(
+        self, organization: Organization = None, user: get_user_model() = None
+    ) -> None:
         self.user = user
         self.organization = organization
         super().__init__()
 
     def has_permission(self, request: Request, view):
-        return self.organization.owner.id == self.user.id
+        return self.organization.owner.id == self.user.id if self.organization else True
 
-    def has_object_permission(self, request: Request, view, obj: Organization | Any):
+    def has_object_permission(
+        self, request: Request, view, obj: Organization | Any
+    ) -> bool:
         return (
             self.has_permission(request=request, view=view)
-            if type(obj) is not Organization
+            if not isinstance(obj, Organization)
             else obj.owner.id == self.user.id
         )

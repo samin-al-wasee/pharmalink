@@ -4,7 +4,7 @@ from rest_framework.validators import ValidationError
 
 from common.constants import MAX_LENGTH, MIN_LENGTH
 from common.serializers import AddressSerializer
-from common.utils import create_nested_objects, extract_fields, remove_blank_or_null
+from common.utils import create_nested_objects, extract_fields
 
 
 class UserSerializer(ModelSerializer):
@@ -51,10 +51,6 @@ class UserSerializer(ModelSerializer):
             )
 
         return attrs
-
-    def is_valid(self, *, raise_exception=False):
-        self.initial_data = remove_blank_or_null(self.initial_data)
-        return super().is_valid(raise_exception=raise_exception)
 
     def create(self, validated_data):  # Needs REFACTOR
         """

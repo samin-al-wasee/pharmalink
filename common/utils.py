@@ -123,7 +123,7 @@ def get_path_objects(
             except ValueError or TypeError:
                 object_ = get_object_or_404(klass=model_class, slug=path_var_value)
         except Http404:
-            raise NotFound(f"{model_class} does not exist.")
+            raise NotFound(f"{model_class.__name__} does not exist.")
         kwarg_objects[path_variable] = object_
 
     return kwarg_objects

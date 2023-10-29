@@ -136,10 +136,6 @@ class PrescriptionSerializer(ModelSerializer):
             )
             return serializer.data
 
-    def is_valid(self, *, raise_exception=False):
-        self.initial_data = remove_blank_or_null(self.initial_data)
-        return super().is_valid(raise_exception=raise_exception)
-
     def validate_patient(self, obj):
         patient_uuid = obj.uuid
         request = self.context.get("request")
@@ -159,7 +155,7 @@ class PrescriptionSerializer(ModelSerializer):
             raise ValidationError({"patient": "User is not patient in organization."})
 
     def validate_prescribed_medicines_write_only(self, data):
-        prescribed_medicines = data[0]
+        prescribed_medicines = data
         request = self.context.get("request")
         organization_uuid = request.parser_context.get("kwargs").get(
             "organization_uuid"
@@ -190,7 +186,7 @@ class PrescriptionSerializer(ModelSerializer):
         instance = super().create(validated_data)
 
         # Following code snippet needs checking and refactoring for a better solution
-        prescribed_medicines = extracted_data.get("prescribed_medicines_write_only")[0]
+        prescribed_medicines = extracted_data.get("prescribed_medicines_write_only")
         prescribed_medicines = [
             dict(prescribed_medicine) for prescribed_medicine in prescribed_medicines
         ]

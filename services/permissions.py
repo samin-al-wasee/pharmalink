@@ -20,7 +20,7 @@ class HasRole(BasePermission):
     def has_object_permission(self, request, view, obj):
         return (
             self.has_permission(request=request, view=view)
-            if type(obj) is not Organization
+            if not isinstance(obj, Organization)
             else OrganizationHasUserWithRole.objects.get(
                 organization_id=self.organization.id, user_id=self.user.id
             ).role
@@ -55,3 +55,11 @@ class HasPrescriptionAccess(BasePermission):
             obj.doctor.id == authenticated_user.id
             or obj.patient.id == authenticated_user.id
         )
+
+
+class IsPrescriptionUndone(BasePermission):
+    def has_permission(self, request, view):
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        return not obj.done

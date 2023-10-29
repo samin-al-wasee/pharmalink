@@ -12,19 +12,9 @@ class OwnerPermissionMixin:
     """
 
     def get_permissions(self):
-        organization = self.kwarg_objects.get("organization_uuid")
+        organization = self.kwarg_objects.get("organization_uuid") if hasattr(self, "kwarg_objects") else None
         authenticated_user = self.request.user
         return [
             IsAuthenticated(),
             IsOrganizationOwner(organization=organization, user=authenticated_user),
         ]
-
-    def check_permissions(self, request):
-        path_variables = ("organization_uuid",)
-        model_classes = (Organization,)
-        self.kwarg_objects = get_path_objects(
-            request_kwargs=self.kwargs,
-            path_variables=path_variables,
-            model_classes=model_classes,
-        )
-        return super().check_permissions(request)

@@ -55,10 +55,6 @@ class MedicineBrandSerializer(ModelSerializer):
             serializer = DosageFormSerializer(dosage_forms, many=True)
             return serializer.data
 
-    def is_valid(self, *, raise_exception=False):
-        self.initial_data = remove_blank_or_null(self.initial_data)
-        return super().is_valid(raise_exception=raise_exception)
-
     def create(self, validated_data):
         to_exclude = ("dosage_forms_write_only",)
         validated_data, extracted_data = extract_fields(
@@ -74,7 +70,7 @@ class MedicineBrandSerializer(ModelSerializer):
         instance = super().create(validated_data)
 
         # Following code snippet needs checking and refactoring for a better solution
-        dosage_forms = extracted_data.get("dosage_forms_write_only")[0]
+        dosage_forms = extracted_data.get("dosage_forms_write_only")
         dosage_forms = [dict(dosage_form) for dosage_form in dosage_forms]
         additional_data = {"brand": instance.id}
 
@@ -112,7 +108,7 @@ class MedicineBrandSerializer(ModelSerializer):
 
         try:
             # Following code snippet needs checking and refactoring for a better solution
-            dosage_forms = extracted_data.get("dosage_forms_write_only")[0]
+            dosage_forms = extracted_data.get("dosage_forms_write_only")
             dosage_forms = [dict(dosage_form) for dosage_form in dosage_forms]
             additional_data = {"brand": instance.id}
 

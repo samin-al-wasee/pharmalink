@@ -13,6 +13,8 @@ from .models import MedicineBrand, MedicineGeneric
 from .serializers import MedicineBrandSerializer, MedicineGenericSerializer
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from common.mixins import PathValidationMixin
+from organizations.models import Organization
 
 
 # Create your views here.
@@ -35,8 +37,11 @@ class MedicineBrandListForUser(ListAPIView):
     ]
 
 
-class MedicineBrandListCreateForOwner(OwnerPermissionMixin, ListCreateAPIView):
+class MedicineBrandListCreateForOwner(OwnerPermissionMixin, PathValidationMixin, ListCreateAPIView):
     serializer_class = MedicineBrandSerializer
+    path_variables = ("organization_uuid",)
+    model_classes = (Organization,)
+    kwarg_objects = {}
 
     def get_queryset(self):
         organization_uuid = self.kwargs.get("organization_uuid")
@@ -45,9 +50,12 @@ class MedicineBrandListCreateForOwner(OwnerPermissionMixin, ListCreateAPIView):
 
 
 class MedicineBrandDetailsUpdateDelete(
-    OwnerPermissionMixin, RetrieveUpdateDestroyAPIView
+    OwnerPermissionMixin, PathValidationMixin, RetrieveUpdateDestroyAPIView
 ):
     serializer_class = MedicineBrandSerializer
+    path_variables = ("organization_uuid",)
+    model_classes = (Organization,)
+    kwarg_objects = {}
     lookup_field = "slug"
     lookup_url_kwarg = "medicine_slug"
 

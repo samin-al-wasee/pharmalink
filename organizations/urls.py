@@ -35,7 +35,7 @@ urlpatterns = [
         include("medicines.urls.org-medicines"),
     ),
     path(
-        "/we/<uuid:organization_uuid>/services",
+        "/we/<uuid:organization_uuid>",
         include("services.urls.root"),
     ),
     path(

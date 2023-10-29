@@ -33,10 +33,10 @@ class AddressSerializer(ModelSerializer):
 
     def save(self, **kwargs):
         try:
-            search_params = {
+            search_parameters = {
                 field: self.validated_data.get(field, "") for field in self.Meta.fields
             }
-            address = Address.objects.get(**search_params)
+            address = Address.objects.get(**search_parameters)
             self.instance = address
         except Address.DoesNotExist:
             pass
