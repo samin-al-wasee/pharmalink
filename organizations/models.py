@@ -6,7 +6,7 @@ from common.constants import (
     MAX_LENGTH,
     ORGANIZATION_STATUSES,
     OTHER,
-    STATUS_UNKNOWN,
+    UNKNOWN,
     USER_ROLES,
 )
 from common.models import (
@@ -22,14 +22,14 @@ class Organization(
     ModelHasRandomID, ModelHasUniqueName, ModelHasEmail, ModelHasAddress
 ):
     information = models.TextField(
-        verbose_name=_("organization information"), default="No information available."
+        verbose_name=_("information"), default="No information available."
     )
 
     status = models.CharField(
-        verbose_name=_("organization status"),
+        verbose_name=_("status"),
         max_length=MAX_LENGTH,
         choices=ORGANIZATION_STATUSES,
-        default=STATUS_UNKNOWN,
+        default=UNKNOWN,
     )
     owner = models.ForeignKey(to=get_user_model(), on_delete=models.PROTECT)
 
@@ -62,5 +62,5 @@ class OrganizationHasUserWithRole(ModelLinksUserOrganization):
         verbose_name_plural = _("user roles")
         unique_together = ["organization", "user"]
 
-    def __str__(self) -> str:  # Needs REFACTOR
-        return f"{str(self.user)}({self.role}) @ {self.organization.name}"
+    def __str__(self) -> str:
+        return f"{str(self.user)} is {self.role} @ {self.organization.name}"

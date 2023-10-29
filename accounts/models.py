@@ -1,11 +1,18 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.validators import ASCIIUsernameValidator
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from common.constants import BLOOD_GROUPS, GENDERS, MAX_LENGTH, MIN_LENGTH, UNKNOWN
+from common.constants import (
+    BLOOD_GROUPS,
+    GENDERS,
+    MAX_LENGTH,
+    MIN_LENGTH,
+    UNKNOWN,
+    NOT_SET,
+)
 from common.models import ModelHasAddress, ModelHasEmail, ModelHasRandomID
 
 from .managers import UserManager_
@@ -23,23 +30,26 @@ class User(
         verbose_name=_("username"),
         max_length=MAX_LENGTH,
         unique=True,
-        help_text=_(
-            "Required. 128 characters or fewer. Letters, digits and @/./+/-/_ only."
-        ),
+        help_text=_(f"Required. {MAX_LENGTH} characters or fewer."),
         validators=[
             ASCIIUsernameValidator(),
-            MinLengthValidator(MIN_LENGTH),
+            MinLengthValidator(limit_value=MIN_LENGTH),
         ],
         error_messages={
-            "unique": _("A user with that username already exists."),
+            "unique": _("Username already exists."),
         },
     )
     name = models.CharField(
-        _("name"),
+        verbose_name=_("name"),
         max_length=MAX_LENGTH,
+        blank=True,
+        help_text=_(f"Optional. {MAX_LENGTH} characters or fewer."),
     )
     date_of_birth = models.DateField(
-        verbose_name=_("date of birth"), blank=True, null=True
+        verbose_name=_("date of birth"),
+        blank=True,
+        null=True,
+        help_text=_(f"Optional. YYYY-MM-DD format."),
     )
 
     def _rename_photo(instance, filename: str):
@@ -53,10 +63,21 @@ class User(
         return f"user_photos/{instance.username}.{extension}"
 
     photo = models.ImageField(
-        verbose_name=_("user photo"), upload_to=_rename_photo, blank=True, null=True
+        verbose_name=_("user photo"),
+        upload_to=_rename_photo,
+        blank=True,
+        null=True,
     )
-    height_cm = models.IntegerField(_("height in centimetres"), default=-1)
-    weight_kg = models.IntegerField(_("weight in kilograms"), default=-1)
+    height_cm = models.IntegerField(
+        verbose_name=_("height in centimetres"),
+        validators=[MinValueValidator(limit_value=1)],
+        default=NOT_SET,
+    )
+    weight_kg = models.IntegerField(
+        verbose_name=_("weight in kilograms"),
+        validators=[MinValueValidator(limit_value=1)],
+        default=NOT_SET,
+    )
     blood_group = models.CharField(
         verbose_name=_("blood group"),
         max_length=MAX_LENGTH,
@@ -79,11 +100,11 @@ class User(
         verbose_name_plural = _("users")
 
     @property
-    def is_staff(self):
+    def is_staff(self) -> bool:
         return self.is_superuser
 
     def __str__(self) -> str:
-        return f"{self.username} | {self.email}"
+        return f"{self.username}"
 
     def clean(self) -> None:
         super().clean()

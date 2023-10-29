@@ -5,20 +5,21 @@ MIN_LENGTH = 8
 MAX_LENGTH = 128
 
 """
-Constants and choices for UserAccount model
+Constants and choices for User model
 """
-MALE = "M"
-FEMALE = "F"
-OTHER = "O"
-A_POSITIVE = "A+"
-A_NEGATIVE = "A-"
-B_POSITIVE = "B+"
-B_NEGATIVE = "B-"
-AB_POSITIVE = "AB+"
-AB_NEGATIVE = "AB-"
-O_POSITIVE = "O+"
-O_NEGATIVE = "O-"
-UNKNOWN = "U"
+MALE = "male"
+FEMALE = "female"
+OTHER = "other"
+A_POSITIVE = "a+"
+A_NEGATIVE = "a-"
+B_POSITIVE = "b+"
+B_NEGATIVE = "b-"
+AB_POSITIVE = "ab+"
+AB_NEGATIVE = "ab-"
+O_POSITIVE = "o+"
+O_NEGATIVE = "o-"
+UNKNOWN = "unknown"
+NOT_SET = -1
 
 GENDERS = [
     (MALE, "Male"),
@@ -28,40 +29,41 @@ GENDERS = [
 ]
 
 BLOOD_GROUPS = [
-    (A_POSITIVE, "A Positive"),
-    (A_NEGATIVE, "A Negative"),
-    (B_POSITIVE, "B Positive"),
-    (B_NEGATIVE, "B Negative"),
-    (AB_POSITIVE, "AB Positive"),
-    (AB_NEGATIVE, "AB Negative"),
-    (O_POSITIVE, "O Positive"),
-    (O_NEGATIVE, "O Negative"),
+    (A_POSITIVE, "A+"),
+    (A_NEGATIVE, "A-"),
+    (B_POSITIVE, "B-"),
+    (B_NEGATIVE, "B-"),
+    (AB_POSITIVE, "AB+"),
+    (AB_NEGATIVE, "AB-"),
+    (O_POSITIVE, "O+"),
+    (O_NEGATIVE, "O-"),
     (UNKNOWN, "Unknown"),
 ]
 
 """
 Constants and choices for Organization model
 """
-ACTIVE = "A"
-INACTIVE = "I"
-STATUS_UNKNOWN = "U"
+ACTIVE = "active"
+INACTIVE = "inactive"
+DISBANDED = "disbanded"
 
 ORGANIZATION_STATUSES = [
-    (ACTIVE, "This organization is currently active."),
-    (INACTIVE, "This organization is currently inactive."),
-    (STATUS_UNKNOWN, "No information about this organization's status."),
+    (ACTIVE, "Currently active."),
+    (INACTIVE, "Currently inactive."),
+    (DISBANDED, "Has disbanded."),
+    (UNKNOWN, "No information."),
 ]
 
 """
 Constants and choices for OrganizationHasUserWithRole model
 """
 
-STAFF = "S"
-DOCTOR = "D"
-PATIENT = "P"
+STAFF = "staff"
+DOCTOR = "doctor"
+PATIENT = "patient"
 
 USER_ROLES = [
-    (STAFF, "Is a staff. E.g. Wardboy, Nurse etc."),
+    (STAFF, "Is a staff."),
     (DOCTOR, "Is a registered doctor."),
     (PATIENT, "Is a patient."),
     (OTHER, "Is a generic user."),
@@ -71,16 +73,16 @@ USER_ROLES = [
 Constants and choices for MedicineGeneric, MedicineBrand, MedicineBrandHasDosageWithInfo models
 """
 
-TABLET = "T"
-CAPSULE = "S"
-OINTMENT = "O"
-INJECTION = "I"
+TABLET = "tablet"
+CAPSULE = "capsule"
+OINTMENT = "ointment"
+INJECTION = "injection"
 
 DOSAGE_FORMS = [
-    (TABLET, "Tablet"),
-    (CAPSULE, "Capsule"),
-    (OINTMENT, "Ointment"),
-    (INJECTION, "Injection"),
+    (TABLET, "Tablet."),
+    (CAPSULE, "Capsule."),
+    (OINTMENT, "Ointment."),
+    (INJECTION, "Injection."),
 ]
 
 
@@ -96,9 +98,9 @@ FOUR = 4
 FIVE = 5
 
 RATINGS = [
-    (ONE, "1 Star"),
-    (TWO, "2 Stars"),
-    (THREE, "3 Stars"),
-    (FOUR, "4 Stars"),
-    (FIVE, "5 Stars"),
+    (ONE, "1 Star."),
+    (TWO, "2 Stars."),
+    (THREE, "3 Stars."),
+    (FOUR, "4 Stars."),
+    (FIVE, "5 Stars."),
 ]
