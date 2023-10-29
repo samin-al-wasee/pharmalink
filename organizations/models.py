@@ -22,11 +22,11 @@ class Organization(
     ModelHasRandomID, ModelHasUniqueName, ModelHasEmail, ModelHasAddress
 ):
     information = models.TextField(
-        verbose_name=_("organization information"), default="No information available."
+        verbose_name=_("information"), default="No information available."
     )
 
     status = models.CharField(
-        verbose_name=_("organization status"),
+        verbose_name=_("status"),
         max_length=MAX_LENGTH,
         choices=ORGANIZATION_STATUSES,
         default=STATUS_UNKNOWN,
@@ -49,7 +49,7 @@ class ModelLinksUserOrganization(models.Model):
         abstract = True
 
 
-class OrganizationHasUserWithRole(ModelLinksUserOrganization):
+class OrganizationHasUser(ModelLinksUserOrganization):
     role = models.CharField(
         verbose_name=_("user's role"),
         max_length=MAX_LENGTH,

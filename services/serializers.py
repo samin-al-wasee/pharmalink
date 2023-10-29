@@ -13,7 +13,7 @@ from rest_framework.serializers import (
 from common.constants import PATIENT
 from common.utils import create_nested_objects, extract_fields, remove_blank_or_null
 from medicines.models import MedicineBrand
-from organizations.models import Organization, OrganizationHasUserWithRole
+from organizations.models import Organization, OrganizationHasUser
 
 from .models import (
     FeedbackToOrganization,
@@ -147,10 +147,10 @@ class PrescriptionSerializer(ModelSerializer):
             "organization_uuid"
         )
         try:
-            relation = OrganizationHasUserWithRole.objects.select_related(
+            relation = OrganizationHasUser.objects.select_related(
                 "organziation", "user"
             ).get(organization__uuid=organization_uuid, user__uuid=patient_uuid)
-        except OrganizationHasUserWithRole.DoesNotExist:
+        except OrganizationHasUser.DoesNotExist:
             raise ValidationError("User not found.")
 
         if relation.role == PATIENT:

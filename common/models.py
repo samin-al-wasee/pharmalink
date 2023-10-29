@@ -21,9 +21,10 @@ class ModelHasRandomID(models.Model):
 
 class ModelHasUniqueName(models.Model):
     name = models.CharField(
-        _("name"),
+        verbose_name=_("name"),
         max_length=MAX_LENGTH,
         unique=True,
+        help_text=_(f"Required. {MAX_LENGTH} characters or fewer."),
     )
 
     class Meta:
@@ -36,9 +37,9 @@ class ModelHasEmail(models.Model):
     email = models.EmailField(
         verbose_name=_("email address"),
         unique=True,
-        help_text=_("Required. 128 characters or fewer."),
+        help_text=_(f"Required. {MAX_LENGTH} characters or fewer."),
         error_messages={
-            "unique": _("This email already exists."),
+            "unique": _("Email already exists."),
         },
     )
 
@@ -60,7 +61,7 @@ class Address(models.Model):
     city = models.CharField(max_length=MAX_LENGTH)
     region = models.CharField(max_length=MAX_LENGTH, blank=True)
     postal_code = models.CharField(max_length=MAX_LENGTH)
-    country: Country = CountryField(blank_label=_("Select country"))
+    country: Country = CountryField(blank_label=_("Select country."))
 
     class Meta:
         verbose_name = _("address")
@@ -78,7 +79,7 @@ class Address(models.Model):
             raise ValidationError({"country": "Country can not be blank."})
 
     def __str__(self) -> str:
-        return f"{self.city}, {self.country.name} | {self.line_1}, {self.line_2}"
+        return f"{self.line_1}, {self.line_2}, {self.city}, {self.country.name}"
 
 
 class ModelHasAddress(models.Model):

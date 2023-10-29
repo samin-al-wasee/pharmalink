@@ -1,7 +1,7 @@
 from rest_framework.permissions import BasePermission
 
 from common.constants import DOCTOR, PATIENT
-from organizations.models import Organization, OrganizationHasUserWithRole
+from organizations.models import Organization, OrganizationHasUser
 
 
 class HasRole(BasePermission):
@@ -12,7 +12,7 @@ class HasRole(BasePermission):
         super().__init__()
 
     def has_permission(self, request, view):
-        relation = OrganizationHasUserWithRole.objects.get(
+        relation = OrganizationHasUser.objects.get(
             organization_id=self.organization.id, user_id=self.user.id
         )
         return relation.role == self.role
@@ -21,7 +21,7 @@ class HasRole(BasePermission):
         return (
             self.has_permission(request=request, view=view)
             if type(obj) is not Organization
-            else OrganizationHasUserWithRole.objects.get(
+            else OrganizationHasUser.objects.get(
                 organization_id=self.organization.id, user_id=self.user.id
             ).role
             == self.role

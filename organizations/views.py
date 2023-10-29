@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from common.constants import ACTIVE, INACTIVE
 
 from .mixins import OwnerPermissionMixin
-from .models import Organization, OrganizationHasUserWithRole
+from .models import Organization, OrganizationHasUser
 from .serializers import (
     OrganizationSerializer,
     OrganizationUserBaseSerializer,
@@ -49,7 +49,10 @@ class OrganizationListCreate(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ["status", "owner__name", "address__city", "address__country"]
-    search_fields = ["name", "information",]
+    search_fields = [
+        "name",
+        "information",
+    ]
 
 
 class OrganizationDetailsUpdate(OwnerPermissionMixin, RetrieveUpdateDestroyAPIView):
@@ -75,7 +78,7 @@ class OrganizationUserListCreateForOwner(OwnerPermissionMixin, ListCreateAPIView
         organization_uuid = self.request.parser_context.get("kwargs").get(
             "organization_uuid"
         )
-        queryset = OrganizationHasUserWithRole.objects.select_related().filter(
+        queryset = OrganizationHasUser.objects.select_related().filter(
             organization__uuid=organization_uuid
         )
         return queryset
@@ -90,7 +93,7 @@ class OrganizationUserDetailsUpdateDelete(
 
     def get_queryset(self):
         organization_uuid = self.kwargs.get("organization_uuid")
-        queryset = OrganizationHasUserWithRole.objects.select_related().filter(
+        queryset = OrganizationHasUser.objects.select_related().filter(
             organization__uuid=organization_uuid
         )
         return queryset

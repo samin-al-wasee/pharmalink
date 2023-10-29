@@ -8,7 +8,7 @@ from common.constants import ACTIVE
 from common.serializers import AddressSerializer
 from common.utils import create_nested_objects, remove_blank_or_null
 
-from .models import Organization, OrganizationHasUserWithRole
+from .models import Organization, OrganizationHasUser
 
 
 class OrganizationSerializer(ModelSerializer):
@@ -59,7 +59,7 @@ class OrganizationSerializer(ModelSerializer):
 
 class OrganizationUserBaseSerializer(ModelSerializer):
     class Meta:
-        model = OrganizationHasUserWithRole
+        model = OrganizationHasUser
         fields = (
             "organization",
             "user",
