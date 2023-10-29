@@ -6,6 +6,7 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.mixins import CreateModelMixin
 
 from common.constants import ACTIVE, INACTIVE
 
@@ -17,34 +18,41 @@ from .serializers import (
     OrganizationUserSerializerForOwner,
     OrganizationUserSerializerForUser,
 )
+from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 # Create your views here.
-class OrganizationListOnlyOwned(ListAPIView):
+class OrganizationList(ListAPIView):
+    queryset = Organization.objects.select_related("owner", "address").filter()
+    serializer_class = OrganizationSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ["status", "address__city", "address__country"]
+    search_fields = [
+        "name",
+        "information",
+    ]
+
+
+class OrganizationListOnlyOwned(OrganizationList):
     """
     Return only owned organizations by authenticated user regardless of status.
     """
 
-    serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated]
-
     def get_queryset(self):
         authenticated_user: get_user_model() = self.request.user
-        queryset = Organization.objects.select_related().filter(
-            owner_id=authenticated_user.id
-        )
+        queryset = self.queryset.filter(owner_id=authenticated_user.id)
         return queryset
 
 
-class OrganizationListCreate(ListCreateAPIView):
+class OrganizationListCreate(CreateModelMixin, OrganizationList):
     """
     Return all active organizations regardless of owner.
     Create organization for authenticated user.
     """
 
-    queryset = Organization.objects.filter(status=ACTIVE)
-    serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated]
+    filterset_fields = ["status", "owner__name", "address__city", "address__country"]
 
 
 class OrganizationDetailsUpdate(OwnerPermissionMixin, RetrieveUpdateDestroyAPIView):
