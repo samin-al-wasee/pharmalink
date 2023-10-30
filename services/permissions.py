@@ -2,6 +2,7 @@ from rest_framework.permissions import BasePermission
 
 from common.constants import DOCTOR, PATIENT
 from organizations.models import Organization, OrganizationHasUserWithRole
+from .models import Prescription
 
 
 class HasRole(BasePermission):
@@ -57,9 +58,17 @@ class HasPrescriptionAccess(BasePermission):
         )
 
 
-class IsPrescriptionUndone(BasePermission):
+class IsDone(BasePermission):
+    def __init__(self, prescription=None) -> None:
+        self.prescription = prescription
+        super().__init__()
+
     def has_permission(self, request, view):
-        return True
+        return self.prescription.done if self.prescription else True
 
     def has_object_permission(self, request, view, obj):
-        return not obj.done
+        return (
+            self.has_permission()
+            if not isinstance(obj, Prescription)
+            else obj.prescription.done
+        )

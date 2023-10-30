@@ -24,7 +24,7 @@ from .models import (
 from .permissions import (
     HasPrescriptionAccess,
     HasRole,
-    IsPrescriptionUndone,
+    IsDone,
 )
 from .serializers import (
     FeedbackSerializer,
@@ -245,6 +245,8 @@ class PrescriptionDetailsDeleteForDoctor(
 class PrescriptionMarkAsDone(DestroyAPIView):
     queryset = Prescription.objects.filter()
     serializer_class = PrescriptionDetailSerializer
+    lookup_field = "uuid"
+    lookup_url_kwarg = "prescription_uuid"
 
     def get_permissions(self):
         return [
@@ -259,10 +261,16 @@ class PrescriptionMarkAsDone(DestroyAPIView):
 
 class _PrescriptionFeedbackCreate(PathValidationMixin, CreateAPIView):
     serializer_class = PrescriptionFeedbackSerializer
-    permission_classes = [IsAuthenticated, IsPrescriptionUndone]
     path_variables = ("prescription_uuid",)
     model_classes = (Prescription,)
     kwarg_objects = {}
+
+    def get_permissions(self):
+        prescription = self.kwarg_objects.get("prescription_uuid")
+        return [
+            IsAuthenticated(),
+            NOT(IsDone(prescription=prescription)),
+        ]
 
 
 class PrescriptionFeedbackCreateForPatient(
@@ -283,10 +291,16 @@ class PrescriptionFeedbackCreateForDoctor(
 
 class _PrescriptionChatListCreate(PathValidationMixin, ListCreateAPIView):
     serializer_class = PrescriptionMessageSerializer
-    permission_classes = [IsAuthenticated, IsPrescriptionUndone]
     path_variables = ("prescription_uuid",)
     model_classes = (Prescription,)
     kwarg_objects = {}
+
+    def get_permissions(self):
+        prescription = self.kwarg_objects.get("prescription_uuid")
+        return [
+            IsAuthenticated(),
+            NOT(IsDone(prescription=prescription)),
+        ]
 
     def get_queryset(self):
         prescription = self.kwarg_objects.get("prescription_uuid")
