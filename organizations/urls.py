@@ -20,11 +20,11 @@ urlpatterns = [
         OrganizationListCreate.as_view(),
         name="org-list-all-create",
     ),
-    path(
-        "/we/join",
-        OrganizationUserCreateForUser.as_view(),
-        name="org-user-create-for-user",
-    ),
+    # path(
+    #     "/we/join",
+    #     OrganizationUserCreateForUser.as_view(),
+    #     name="org-user-create-for-user",
+    # ),
     path(
         "/we/<uuid:organization_uuid>",
         OrganizationDetailsUpdate.as_view(),

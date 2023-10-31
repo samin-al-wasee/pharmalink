@@ -3,6 +3,7 @@ from rest_framework.permissions import BasePermission
 from common.constants import DOCTOR, PATIENT
 from organizations.models import Organization, OrganizationHasUserWithRole
 from .models import Prescription
+from rest_framework.exceptions import PermissionDenied
 
 
 class HasRole(BasePermission):
@@ -13,9 +14,12 @@ class HasRole(BasePermission):
         super().__init__()
 
     def has_permission(self, request, view):
-        relation = OrganizationHasUserWithRole.objects.get(
-            organization_id=self.organization.id, user_id=self.user.id
-        )
+        try:
+            relation = OrganizationHasUserWithRole.objects.get(
+                organization_id=self.organization.id, user_id=self.user.id
+            )
+        except OrganizationHasUserWithRole.DoesNotExist:
+            raise PermissionDenied("You do not have permission to perform this action.")
         return relation.role == self.role
 
     def has_object_permission(self, request, view, obj):

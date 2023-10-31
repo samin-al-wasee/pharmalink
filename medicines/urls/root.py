@@ -4,12 +4,12 @@ from ..views import MedicineBrandListForUser, MedicineGenericListForUser
 
 urlpatterns = [
     path(
-        "/medicines/brands",
+        "/medicines",
         MedicineBrandListForUser.as_view(),
         name="medicine-brand-list-user",
     ),
     path(
-        "/medicines/generics",
+        "/generics",
         MedicineGenericListForUser.as_view(),
         name="medicine-generic-list-user",
     ),

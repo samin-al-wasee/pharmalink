@@ -43,7 +43,14 @@ class OrganizationListOnlyOwned(_OrganizationList):
 
     def get_queryset(self):
         authenticated_user: get_user_model() = self.request.user
-        queryset = self.queryset.filter(owner_id=authenticated_user.id)
+        owned_queryset = self.queryset.filter(owner_id=authenticated_user.id)
+        joined_ids = (
+            OrganizationHasUserWithRole.objects
+            .filter(user_id=authenticated_user.id)
+            .values("organization")
+        )
+        joined_queryset = self.queryset.filter(id__in=joined_ids)
+        queryset = owned_queryset | joined_queryset
         return queryset
 
 
@@ -84,12 +91,10 @@ class OrganizationUserListCreateForOwner(
     kwarg_objects = {}
 
     def get_queryset(self):
-        organization_uuid = self.kwargs.get(
-            "organization_uuid"
-        )
-        queryset = OrganizationHasUserWithRole.objects.select_related("organization", "user").filter(
-            organization__uuid=organization_uuid
-        )
+        organization_uuid = self.kwargs.get("organization_uuid")
+        queryset = OrganizationHasUserWithRole.objects.select_related(
+            "organization", "user"
+        ).filter(organization__uuid=organization_uuid)
         return queryset
 
 
@@ -105,7 +110,7 @@ class OrganizationUserDetailsUpdateDelete(
 
     def get_queryset(self):
         organization_uuid = self.kwargs.get("organization_uuid")
-        queryset = OrganizationHasUserWithRole.objects.select_related("organization", "user").filter(
-            organization__uuid=organization_uuid
-        )
+        queryset = OrganizationHasUserWithRole.objects.select_related(
+            "organization", "user"
+        ).filter(organization__uuid=organization_uuid)
         return queryset

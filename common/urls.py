@@ -5,7 +5,7 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Demo Project",
+        title="PharmaLink",
         default_version="v1",
     ),
     public=True,
