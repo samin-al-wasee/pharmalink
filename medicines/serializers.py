@@ -12,12 +12,12 @@ from rest_framework.serializers import (
 from common.utils import create_nested_objects, extract_fields, remove_blank_or_null
 from organizations.models import Organization
 
-from .models import MedicineBrand, MedicineBrandHasDosageFormWithInfo, MedicineGeneric
+from .models import MedicineBrand, MedicineBrandHasDosageForm, MedicineGeneric
 
 
 class DosageFormSerializer(ModelSerializer):
     class Meta:
-        model = MedicineBrandHasDosageFormWithInfo
+        model = MedicineBrandHasDosageForm
         fields = (
             "brand",
             "dosage_form",
@@ -49,9 +49,7 @@ class MedicineBrandSerializer(ModelSerializer):
 
     def get_dosage_forms(self, obj):  # Need FIX
         if not isinstance(obj, OrderedDict):
-            dosage_forms = MedicineBrandHasDosageFormWithInfo.objects.filter(
-                brand_id=obj.id
-            )
+            dosage_forms = MedicineBrandHasDosageForm.objects.filter(brand_id=obj.id)
             serializer = DosageFormSerializer(dosage_forms, many=True)
             return serializer.data
 
@@ -123,9 +121,7 @@ class MedicineBrandSerializer(ModelSerializer):
             additional_data = {"dosage_forms": dosage_forms}
             nested_fields = ("dosage_forms",)
             serializer_classes = (DosageFormSerializer,)
-            MedicineBrandHasDosageFormWithInfo.objects.filter(
-                brand_id=instance.id
-            ).delete()
+            MedicineBrandHasDosageForm.objects.filter(brand_id=instance.id).delete()
             try:
                 create_nested_objects(
                     data=additional_data,

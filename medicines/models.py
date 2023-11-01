@@ -61,7 +61,7 @@ class MedicineBrand(ModelHasNameToSlug):
         return self.name
 
 
-class MedicineBrandHasDosageFormWithInfo(models.Model):
+class MedicineBrandHasDosageForm(models.Model):
     brand = models.ForeignKey(to=MedicineBrand, on_delete=models.CASCADE)
     dosage_form = models.CharField(
         verbose_name=_("dosage form"),
@@ -72,7 +72,7 @@ class MedicineBrandHasDosageFormWithInfo(models.Model):
         verbose_name=_("dosage instructions"),
         default="As prescribed by the doctor.",
     )
-    unit_price = models.IntegerField(_("unit price"), default=-1)
+    unit_price = models.IntegerField(verbose_name=_("unit price"), default=-1)
 
     class Meta:
         verbose_name = _("dosage form")

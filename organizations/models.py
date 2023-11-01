@@ -6,7 +6,7 @@ from common.constants import (
     MAX_LENGTH,
     ORGANIZATION_STATUSES,
     OTHER,
-    STATUS_UNKNOWN,
+    UNKNOWN,
     USER_ROLES,
 )
 from common.models import (
@@ -29,9 +29,8 @@ class Organization(
         verbose_name=_("status"),
         max_length=MAX_LENGTH,
         choices=ORGANIZATION_STATUSES,
-        default=STATUS_UNKNOWN,
+        default=UNKNOWN,
     )
-    owner = models.ForeignKey(to=get_user_model(), on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = _("organization")
@@ -56,11 +55,12 @@ class OrganizationHasUser(ModelLinksUserOrganization):
         choices=USER_ROLES,
         default=OTHER,
     )
+    default = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = _("user role")
         verbose_name_plural = _("user roles")
-        unique_together = ["organization", "user"]
+        unique_together = ["organization", "user", "default"]
 
     def __str__(self) -> str:  # Needs REFACTOR
         return f"{str(self.user)}({self.role}) @ {self.organization.name}"

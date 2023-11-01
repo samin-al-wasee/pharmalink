@@ -4,9 +4,9 @@ from rest_framework.request import Request
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
 from rest_framework.validators import ValidationError
 
-from common.constants import ACTIVE
+from common.constants import ACTIVE, OWNER
 from common.serializers import AddressSerializer
-from common.utils import create_nested_objects, remove_blank_or_null
+from common.utils import create_nested_objects, remove_blank_or_null, extract_fields
 
 from .models import Organization, OrganizationHasUser
 
@@ -21,22 +21,28 @@ class OrganizationSerializer(ModelSerializer):
             "information",
             "status",
             "address",
-            "owner",
             "created_at",
         )
-        read_only_fields = ("owner",)
 
     address = AddressSerializer(allow_null=True, required=False)
-    owner = SlugRelatedField(slug_field="uuid", read_only=True)
 
     def is_valid(self, *, raise_exception=False):
-        self.initial_data = remove_blank_or_null(self.initial_data)
-        return super().is_valid(raise_exception=raise_exception)
+        to_exclude = ("user",)
+        self.initial_data, extracted_data = extract_fields(
+            data=self.initial_data, fields=to_exclude
+        )
+        result = super().is_valid(raise_exception=raise_exception)
+        self.validated_data.update(extracted_data)
+        return result
 
     def create(self, validated_data):  # Needs REFACTOR
-        request: Request = self.context.get("request")
-        additional_data = {"owner": request.user}
-        validated_data.update(additional_data)
+        user = validated_data.pop("user", None)
+        if not user:
+            request = self.context.get("request")
+            authenticated_user = request.user
+            additional_data = {"user": authenticated_user, "default": False}
+        else:
+            additional_data = {"user": user, "default": True}
         nested_fields = ("address",)
         serializer_classes = (AddressSerializer,)
         validated_data = create_nested_objects(
@@ -44,7 +50,18 @@ class OrganizationSerializer(ModelSerializer):
             fields=nested_fields,
             serializer_classes=serializer_classes,
         )
-        return super().create(validated_data)
+        instance = super().create(validated_data)
+        connector_data = {"organization": instance, "role": OWNER}
+        connector_data.update(additional_data)
+        connector_data = {"organization_user_role": connector_data}
+        nested_fields = ("organization_user_role",)
+        serializer_classes = (OrganizationUserSerializerForUser,)
+        create_nested_objects(
+            data=connector_data,
+            nested_fields=nested_fields,
+            serializer_classes=serializer_classes,
+        )
+        return instance
 
     def update(self, instance, validated_data):  # Needs REFACTOR
         nested_fields = ("address",)
@@ -64,6 +81,7 @@ class OrganizationUserBaseSerializer(ModelSerializer):
             "organization",
             "user",
             "role",
+            "default",
         )
         read_only_fields = (
             "organization",
@@ -72,10 +90,6 @@ class OrganizationUserBaseSerializer(ModelSerializer):
 
     organization = SlugRelatedField(slug_field="uuid", read_only=True)
     user = SlugRelatedField(slug_field="uuid", read_only=True)
-
-    def is_valid(self, *, raise_exception=False):
-        self.initial_data = remove_blank_or_null(self.initial_data)
-        return super().is_valid(raise_exception=raise_exception)
 
     def update(self, instance, validated_data):
         additional_data = {
@@ -118,11 +132,25 @@ class OrganizationUserSerializerForUser(OrganizationUserBaseSerializer):
         queryset=Organization.objects.filter(status=ACTIVE), slug_field="uuid"
     )
 
+    def is_valid(self, *, raise_exception=False):
+        to_exclude = ("user",)
+        self.initial_data, extracted_data = extract_fields(
+            data=self.initial_data, fields=to_exclude
+        )
+        result = super().is_valid(raise_exception=raise_exception)
+        self.validated_data.update(extracted_data)
+        return result
+
     def create(self, validated_data):
-        request = self.context.get("request")
-        authenticated_user = request.user
-        additional_data = {"user": authenticated_user}
+        user = validated_data.get("user", None)
+        if not user:
+            request = self.context.get("request")
+            authenticated_user = request.user
+            additional_data = {"user": authenticated_user}
+        else:
+            additional_data = {"default": True}
         validated_data.update(additional_data)
+
         try:
             return super().create(validated_data)
         except IntegrityError:

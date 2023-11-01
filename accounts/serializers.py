@@ -1,10 +1,14 @@
 from django.contrib.auth import get_user_model
-from rest_framework.serializers import CharField, ModelSerializer
+from rest_framework.serializers import CharField, ModelSerializer, Serializer
 from rest_framework.validators import ValidationError
 
 from common.constants import MAX_LENGTH, MIN_LENGTH
 from common.serializers import AddressSerializer
 from common.utils import create_nested_objects, extract_fields, remove_blank_or_null
+from organizations.serializers import (
+    OrganizationUserSerializerForUser,
+    OrganizationSerializer,
+)
 
 
 class UserSerializer(ModelSerializer):
@@ -75,4 +79,26 @@ class UserSerializer(ModelSerializer):
             fields=to_convert,
             serializer_classes=serializer_classes,
         )
+        return super().create(validated_data)
+
+
+class RegistrationSerializer(Serializer):
+    user = UserSerializer()
+    join = OrganizationUserSerializerForUser()
+    create = OrganizationSerializer()
+
+    def validate(self, attrs):
+        join_data = attrs.get("join", {})
+        create_data = attrs.get("create", {})
+        if join_data and create_data:
+            raise ValidationError(
+                {
+                    "join": "Join and create not possible together.",
+                    "create": "Join and create not possible together.",
+                }
+            )
+        return super().validate(attrs)
+    
+    def create(self, validated_data):
+        
         return super().create(validated_data)

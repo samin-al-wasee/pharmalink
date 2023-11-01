@@ -7,18 +7,18 @@ MAX_LENGTH = 128
 """
 Constants and choices for User model
 """
-MALE = "Male"
-FEMALE = "Female"
-OTHER = "Other"
-A_POSITIVE = "A+"
-A_NEGATIVE = "A-"
-B_POSITIVE = "B+"
-B_NEGATIVE = "B-"
-AB_POSITIVE = "AB+"
-AB_NEGATIVE = "AB-"
-O_POSITIVE = "O+"
-O_NEGATIVE = "O-"
-UNKNOWN = "U"
+MALE = "male"
+FEMALE = "female"
+OTHER = "other"
+A_POSITIVE = "a+"
+A_NEGATIVE = "a-"
+B_POSITIVE = "b+"
+B_NEGATIVE = "b-"
+AB_POSITIVE = "ab+"
+AB_NEGATIVE = "ab-"
+O_POSITIVE = "o+"
+O_NEGATIVE = "o-"
+UNKNOWN = "unknown"
 NOT_SET = -1
 
 GENDERS = [
@@ -43,26 +43,25 @@ BLOOD_GROUPS = [
 """
 Constants and choices for Organization model
 """
-ACTIVE = "Active"
-INACTIVE = "Inactive"
-DISBANDED = "Disbanded"
-STATUS_UNKNOWN = "Unknown"
+ACTIVE = "active"
+INACTIVE = "inactive"
+DISBANDED = "disbanded"
 
 ORGANIZATION_STATUSES = [
     (ACTIVE, "This organization is currently active."),
     (INACTIVE, "This organization is currently inactive."),
     (DISBANDED, "This organization is no longer functioning"),
-    (STATUS_UNKNOWN, "No information about this organization's status."),
+    (UNKNOWN, "No information about this organization's status."),
 ]
 
 """
 Constants and choices for OrganizationHasUserWithRole model
 """
 
-STAFF = "Staff"
-DOCTOR = "Doctor"
-PATIENT = "Patient"
-OWNER = "Owner"
+STAFF = "staff"
+DOCTOR = "doctor"
+PATIENT = "patient"
+OWNER = "owner"
 
 USER_ROLES = [
     (STAFF, "Is a staff."),
@@ -75,10 +74,10 @@ USER_ROLES = [
 Constants and choices for MedicineGeneric, MedicineBrand, MedicineBrandHasDosageWithInfo models
 """
 
-TABLET = "Tablet"
-CAPSULE = "Capsule"
-OINTMENT = "Ointment"
-INJECTION = "Injection"
+TABLET = "tablet"
+CAPSULE = "capsule"
+OINTMENT = "ointment"
+INJECTION = "injection"
 
 DOSAGE_FORMS = [
     (TABLET, "Tablet"),

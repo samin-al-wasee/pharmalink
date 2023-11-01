@@ -30,7 +30,7 @@ class User(
         verbose_name=_("username"),
         max_length=MAX_LENGTH,
         unique=True,
-        help_text=_(f"Required. {MAX_LENGTH} characters or fewer."),
+        help_text=_(f"Required. Unique. {MAX_LENGTH} characters or fewer."),
         validators=[
             ASCIIUsernameValidator(),
             MinLengthValidator(limit_value=MIN_LENGTH),
@@ -40,15 +40,15 @@ class User(
         },
     )
     first_name = models.CharField(
-        _("first name"),
-        max_length=MAX_LENGTH,
+        verbose_name=_("first_name"),
         blank=True,
+        max_length=MAX_LENGTH,
         help_text=_(f"Optional. {MAX_LENGTH} characters or fewer."),
     )
     last_name = models.CharField(
-        _("last name"),
-        max_length=MAX_LENGTH,
+        verbose_name=_("last_name"),
         blank=True,
+        max_length=MAX_LENGTH,
         help_text=_(f"Optional. {MAX_LENGTH} characters or fewer."),
     )
     date_of_birth = models.DateField(

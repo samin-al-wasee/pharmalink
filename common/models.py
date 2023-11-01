@@ -24,7 +24,10 @@ class ModelHasUniqueName(models.Model):
         verbose_name=_("name"),
         max_length=MAX_LENGTH,
         unique=True,
-        help_text=_(f"Required. {MAX_LENGTH} characters or fewer."),
+        help_text=_(f"Required. Unique. {MAX_LENGTH} characters or fewer."),
+        error_messages={
+            "unique": _("Name already exists."),
+        },
     )
 
     class Meta:
@@ -37,7 +40,7 @@ class ModelHasEmail(models.Model):
     email = models.EmailField(
         verbose_name=_("email address"),
         unique=True,
-        help_text=_(f"Required. {MAX_LENGTH} characters or fewer."),
+        help_text=_(f"Required. Unique. {MAX_LENGTH} characters or fewer."),
         error_messages={
             "unique": _("Email already exists."),
         },
