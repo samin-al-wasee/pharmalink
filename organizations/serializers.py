@@ -6,7 +6,8 @@ from rest_framework.validators import ValidationError
 
 from common.constants import ACTIVE, OWNER
 from common.serializers import AddressSerializer
-from common.utils import create_nested_objects, remove_blank_or_null, extract_fields
+from common.utils import (create_nested_objects, extract_fields,
+                          remove_blank_or_null)
 
 from .models import Organization, OrganizationHasUser
 

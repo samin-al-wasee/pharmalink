@@ -5,14 +5,8 @@ from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from common.constants import (
-    BLOOD_GROUPS,
-    GENDERS,
-    MAX_LENGTH,
-    MIN_LENGTH,
-    UNKNOWN,
-    NOT_SET,
-)
+from common.constants import (BLOOD_GROUPS, GENDERS, MAX_LENGTH, MIN_LENGTH,
+                              NOT_SET, UNKNOWN)
 from common.models import ModelHasAddress, ModelHasEmail, ModelHasRandomID
 
 from .managers import UserManager_

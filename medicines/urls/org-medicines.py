@@ -1,6 +1,7 @@
 from django.urls import path
 
-from ..views import MedicineBrandDetailsUpdateDelete, MedicineBrandListCreateForOwner
+from ..views import (MedicineBrandDetailsUpdateDelete,
+                     MedicineBrandListCreateForOwner)
 
 urlpatterns = [
     path(

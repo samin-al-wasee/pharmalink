@@ -2,14 +2,12 @@ from collections import OrderedDict
 
 from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
-from rest_framework.serializers import (
-    ListField,
-    ModelSerializer,
-    SerializerMethodField,
-    SlugRelatedField,
-)
+from rest_framework.serializers import (ListField, ModelSerializer,
+                                        SerializerMethodField,
+                                        SlugRelatedField)
 
-from common.utils import create_nested_objects, extract_fields, remove_blank_or_null
+from common.utils import (create_nested_objects, extract_fields,
+                          remove_blank_or_null)
 from organizations.models import Organization
 
 from .models import MedicineBrand, MedicineBrandHasDosageForm, MedicineGeneric

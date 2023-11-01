@@ -3,26 +3,19 @@ from collections import OrderedDict
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.request import Request
-from rest_framework.serializers import (
-    ListField,
-    ModelSerializer,
-    SerializerMethodField,
-    SlugRelatedField,
-)
+from rest_framework.serializers import (ListField, ModelSerializer,
+                                        SerializerMethodField,
+                                        SlugRelatedField)
 
 from common.constants import PATIENT
-from common.utils import create_nested_objects, extract_fields, remove_blank_or_null
+from common.utils import (create_nested_objects, extract_fields,
+                          remove_blank_or_null)
 from medicines.models import MedicineBrand
 from organizations.models import Organization, OrganizationHasUser
 
-from .models import (
-    FeedbackToOrganization,
-    MessageBetweenUserOrganization,
-    Prescription,
-    PrescriptionFeedback,
-    PrescriptionHasMedicine,
-    PrescriptionMessage,
-)
+from .models import (FeedbackToOrganization, MessageBetweenUserOrganization,
+                     Prescription, PrescriptionFeedback,
+                     PrescriptionHasMedicine, PrescriptionMessage)
 
 
 class FeedbackSerializer(ModelSerializer):

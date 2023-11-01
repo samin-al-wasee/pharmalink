@@ -1,13 +1,9 @@
 from django.urls import include, path
 
-from .views import (
-    OrganizationDetailsUpdate,
-    OrganizationListCreate,
-    OrganizationListOnlyOwned,
-    OrganizationUserCreateForUser,
-    OrganizationUserDetailsUpdateDelete,
-    OrganizationUserListCreateForOwner,
-)
+from .views import (OrganizationDetailsUpdate, OrganizationListCreate,
+                    OrganizationListOnlyOwned, OrganizationUserCreateForUser,
+                    OrganizationUserDetailsUpdateDelete,
+                    OrganizationUserListCreateForOwner)
 
 urlpatterns = [
     path(

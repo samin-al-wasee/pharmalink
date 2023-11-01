@@ -4,11 +4,10 @@ from rest_framework.validators import ValidationError
 
 from common.constants import MAX_LENGTH, MIN_LENGTH
 from common.serializers import AddressSerializer
-from common.utils import create_nested_objects, extract_fields, remove_blank_or_null
-from organizations.serializers import (
-    OrganizationUserSerializerForUser,
-    OrganizationSerializer,
-)
+from common.utils import (create_nested_objects, extract_fields,
+                          remove_blank_or_null)
+from organizations.serializers import (OrganizationSerializer,
+                                       OrganizationUserSerializerForUser)
 
 
 class UserSerializer(ModelSerializer):
@@ -98,7 +97,6 @@ class RegistrationSerializer(Serializer):
                 }
             )
         return super().validate(attrs)
-    
+
     def create(self, validated_data):
-        
         return super().create(validated_data)

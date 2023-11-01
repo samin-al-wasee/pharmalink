@@ -1,13 +1,8 @@
 from django.urls import path
 
-from ..views import (
-    PrescriptionChatListCreate,
-    PrescriptionDetailsDelete,
-    PrescriptionFeedbackCreate,
-    PrescriptionListCreate,
-    PrescriptionListForPatient,
-    PrescriptionMarkAsDone,
-)
+from ..views import (PrescriptionChatListCreate, PrescriptionDetailsDelete,
+                     PrescriptionFeedbackCreate, PrescriptionListCreate,
+                     PrescriptionListForPatient, PrescriptionMarkAsDone)
 
 urlpatterns = [
     path(

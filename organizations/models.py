@@ -2,19 +2,10 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from common.constants import (
-    MAX_LENGTH,
-    ORGANIZATION_STATUSES,
-    OTHER,
-    UNKNOWN,
-    USER_ROLES,
-)
-from common.models import (
-    ModelHasAddress,
-    ModelHasEmail,
-    ModelHasRandomID,
-    ModelHasUniqueName,
-)
+from common.constants import (MAX_LENGTH, ORGANIZATION_STATUSES, OTHER,
+                              UNKNOWN, USER_ROLES)
+from common.models import (ModelHasAddress, ModelHasEmail, ModelHasRandomID,
+                           ModelHasUniqueName)
 
 
 # Create your models here.

@@ -1,32 +1,21 @@
 from django.contrib.auth import get_user_model
-from rest_framework.generics import (
-    CreateAPIView,
-    DestroyAPIView,
-    ListAPIView,
-    ListCreateAPIView,
-    RetrieveDestroyAPIView,
-)
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, ListCreateAPIView,
+                                     RetrieveDestroyAPIView)
 from rest_framework.permissions import NOT, IsAuthenticated
 
 from common.constants import DOCTOR, PATIENT
 from common.utils import get_path_objects
 from organizations.models import Organization
 
-from .models import (
-    FeedbackToOrganization,
-    MessageBetweenUserOrganization,
-    Prescription,
-    PrescriptionMessage,
-)
+from .models import (FeedbackToOrganization, MessageBetweenUserOrganization,
+                     Prescription, PrescriptionMessage)
 from .permissions import HasPrescriptionAccess, HasPrescriptionRole, HasRole
-from .serializers import (
-    FeedbackSerializer,
-    MessageSerializer,
-    PrescriptionDetailSerializer,
-    PrescriptionFeedbackSerializer,
-    PrescriptionMessageSerializer,
-    PrescriptionSerializer,
-)
+from .serializers import (FeedbackSerializer, MessageSerializer,
+                          PrescriptionDetailSerializer,
+                          PrescriptionFeedbackSerializer,
+                          PrescriptionMessageSerializer,
+                          PrescriptionSerializer)
 
 
 # Create your views here.

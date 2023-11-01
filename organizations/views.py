@@ -1,24 +1,19 @@
 from django.contrib.auth import get_user_model
-from rest_framework.generics import (
-    CreateAPIView,
-    ListAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from rest_framework.generics import (CreateAPIView, ListAPIView,
+                                     ListCreateAPIView,
+                                     RetrieveUpdateDestroyAPIView)
 from rest_framework.permissions import IsAuthenticated
 
 from common.constants import ACTIVE, INACTIVE
 
 from .mixins import OwnerPermissionMixin
 from .models import Organization, OrganizationHasUser
-from .serializers import (
-    OrganizationSerializer,
-    OrganizationUserBaseSerializer,
-    OrganizationUserSerializerForOwner,
-    OrganizationUserSerializerForUser,
-)
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
+from .serializers import (OrganizationSerializer,
+                          OrganizationUserBaseSerializer,
+                          OrganizationUserSerializerForOwner,
+                          OrganizationUserSerializerForUser)
 
 
 # Create your views here.
