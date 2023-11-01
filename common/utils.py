@@ -56,7 +56,7 @@ def create_nested_objects(
 ) -> dict:
     for field, serializer_class in zip(fields, serializer_classes):
         replacable = data.pop(field, None)
-        if replacable is None:
+        if not replacable:
             data[field] = None
         elif isinstance(replacable, list):
             data[field] = _get_object(

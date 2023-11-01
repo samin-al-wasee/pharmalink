@@ -34,13 +34,13 @@ class User(
         },
     )
     first_name = models.CharField(
-        verbose_name=_("first_name"),
+        verbose_name=_("first name"),
         blank=True,
         max_length=MAX_LENGTH,
         help_text=_(f"Optional. {MAX_LENGTH} characters or fewer."),
     )
     last_name = models.CharField(
-        verbose_name=_("last_name"),
+        verbose_name=_("last name"),
         blank=True,
         max_length=MAX_LENGTH,
         help_text=_(f"Optional. {MAX_LENGTH} characters or fewer."),

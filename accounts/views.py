@@ -8,13 +8,13 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .permissions import IsNotAuthenticated
-from .serializers import UserSerializer
+from .serializers import UserSerializer, RegistrationSerializer
 
 
 # Create your views here.
 class UserCreate(CreateAPIView):
     queryset = get_user_model().objects.filter()
-    serializer_class = UserSerializer
+    serializer_class = RegistrationSerializer
     authentication_classes = [JWTAuthentication, SessionAuthentication]
     permission_classes = [IsNotAuthenticated]
 

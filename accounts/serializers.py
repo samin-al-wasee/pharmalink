@@ -4,10 +4,11 @@ from rest_framework.validators import ValidationError
 
 from common.constants import MAX_LENGTH, MIN_LENGTH
 from common.serializers import AddressSerializer
-from common.utils import (create_nested_objects, extract_fields,
-                          remove_blank_or_null)
-from organizations.serializers import (OrganizationSerializer,
-                                       OrganizationUserSerializerForUser)
+from common.utils import create_nested_objects, extract_fields, remove_blank_or_null
+from organizations.serializers import (
+    OrganizationSerializer,
+    OrganizationUserSerializerForUser,
+)
 
 
 class UserSerializer(ModelSerializer):
@@ -19,7 +20,8 @@ class UserSerializer(ModelSerializer):
             "email",
             "password",
             "repeated_password",
-            "name",
+            "first_name",
+            "last_name",
             "photo",
             "height_cm",
             "weight_kg",
@@ -83,20 +85,45 @@ class UserSerializer(ModelSerializer):
 
 class RegistrationSerializer(Serializer):
     user = UserSerializer()
-    join = OrganizationUserSerializerForUser()
-    create = OrganizationSerializer()
+    join = OrganizationUserSerializerForUser(allow_null=True, required=False)
+    create_ = OrganizationSerializer(allow_null=True, required=False)
 
     def validate(self, attrs):
         join_data = attrs.get("join", {})
         create_data = attrs.get("create", {})
+        errors = {}
         if join_data and create_data:
-            raise ValidationError(
-                {
-                    "join": "Join and create not possible together.",
-                    "create": "Join and create not possible together.",
-                }
-            )
+            error = {
+                "join": "Join and create not possible together.",
+                "create": "Join and create not possible together.",
+            }
+            errors.update(error)
+        if not (join_data or create_data):
+            error = {
+                "join": "Must either join or create.",
+                "create": "Must either join or create.",
+            }
+            errors.update(error)
+
+        if errors:
+            raise ValidationError(errors)
         return super().validate(attrs)
 
     def create(self, validated_data):
-        return super().create(validated_data)
+        to_convert = (
+            "user",
+            "join",
+            "create",
+        )
+        serializer_classes = (
+            UserSerializer,
+            OrganizationUserSerializerForUser,
+            OrganizationSerializer,
+        )
+        final_data = create_nested_objects(
+            data=validated_data,
+            fields=to_convert,
+            serializer_classes=serializer_classes,
+        )
+        user = final_data.get("user")
+        return user
